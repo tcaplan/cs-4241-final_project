@@ -5144,36 +5144,6 @@ var Vector = __webpack_require__(2);
 
 (function() {
 
-        /**
-     * Creates a new rigid body model with text.
-     * The options parameter is an object that specifies any properties you wish to override the defaults.
-     * See the properties section of the `Matter.Body` module for detailed information on what you can pass via the `options` object.
-     * @method rectangle
-     * @param {number} x
-     * @param {number} y
-     * @param {object} [options]
-     * @return {body} A new rectangle body
-     */
-        Bodies.text = function(x, y, content, size, options) {
-            options = options || {};
-    
-            var text = { 
-                label: 'Text Body',
-                position: { x: x, y: y },
-                render: {
-                    text:{
-                        content: content,
-                        color: options.color || 'black',
-                        size: size,
-                        family:"Papyrus",
-                    },
-                }
-                
-            };
-    
-            return Body.create(Common.extend({}, text, options));
-        };
-
     /**
      * Creates a new rigid body model with a rectangle hull. 
      * The options parameter is an object that specifies any properties you wish to override the defaults.
@@ -9393,7 +9363,7 @@ var Mouse = __webpack_require__(14);
 
                         c.fill();
                     } else {
-                        c.lineWidth = part.render.lineWidth;
+                        c.lineWidth = 1;
                         c.strokeStyle = '#bbb';
                         c.stroke();
                     }
@@ -9424,9 +9394,7 @@ var Mouse = __webpack_require__(14);
                     c.textAlign="center";
                     c.fillStyle=color;
                     c.font = fontsize+'px '+fontfamily;
-                    c.rotate(part.angle)
                     c.fillText(content,part.position.x,part.position.y);
-                    c.rotate(-part.angle)
                 }
                 // END CUSTOM ADDED PART
 
@@ -9460,8 +9428,6 @@ var Mouse = __webpack_require__(14);
 
             if (!body.render.visible)
                 continue;
-
-            hasLineWidth = true
 
             // handle compound parts
             for (k = body.parts.length > 1 ? 1 : 0; k < body.parts.length; k++) {
@@ -9511,20 +9477,12 @@ var Mouse = __webpack_require__(14);
                     c.fillText(content,part.position.x,part.position.y);
                 }
                 // END CUSTOM ADDED PART
-                c.lineWidth = part.render.lineWidth;
-                c.strokeStyle = '#bbb';
-                if(part.render.lineWidth > 0) {
-                    c.stroke();
-                } else {
-                    hasLineWidth = false
-                }
-            }
-
-            c.strokeStyle = '#bbb';
-            if(hasLineWidth > 0) {
-                c.stroke();
             }
         }
+
+        c.lineWidth = 1;
+        c.strokeStyle = '#bbb';
+        c.stroke();
     };
 
     /**
@@ -10102,6 +10060,7 @@ var Mouse = __webpack_require__(14);
      */
     var _createCanvas = function(width, height) {
         var canvas = document.createElement('canvas');
+        canvas.id = "matter-js-canvas"
         canvas.width = width;
         canvas.height = height;
         canvas.oncontextmenu = function() { return false; };

@@ -20,10 +20,15 @@ app.use((request, response, next) => {
     next()
   });
 
-app.get('/random-word', (request, response) => {
-    // word = generate()
-    // console.log('in random-word: ' + word)
-    response.json({word: 'hello'})
+app.get('/words', (request, response) => {
+    fs.readFile('./public/libraries/words.txt', 'utf-8', (err, data) => {
+        if(err) {
+            console.log(err)
+        } else {
+            // console.log(data)
+            response.json({"words": data})
+        }
+    })
 })
 
 // set up the server

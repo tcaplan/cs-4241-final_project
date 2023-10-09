@@ -5,28 +5,32 @@ var Engine = Matter.Engine,
     World = Matter.World,
     Bodies = Matter.Bodies,
     Body = Matter.Body,
-    Constraint = Matter.Constraint,
+    Collision = Matter.Collision,
     Mouse = Matter.Mouse,
     MouseConstraint = Matter.MouseConstraint,
     Composite = Matter.Composite,
     Events = Matter.Events
 
-WIDTH = 600
-HEIGHT = 500
-sliceCount = 0
-let words = []
+// game settings
+lives = 3
+money = 0
+score = 0
+
+MARGIN = 100
+WIDTH = 0
+HEIGHT = 0
 SLICED_COLOR = 'grey'
+MAX_SLICES = 4
 
 var engine
 var render
 
-// bodies
+words = {}
 bodies = []
 
 // global variables
 mousePressed = false
 slicing = false
-
 
 sliced = event => {
     if(mousePressed === true && slicing === false) {
@@ -34,93 +38,56 @@ sliced = event => {
         bodiesAtPos = Matter.Query.point(bodies, event.mouse.position);
 
         bodiesAtPos.forEach(body => {
-            if(body.isStatic === false) {
-                console.log(body.position.x + " " + body.position.y)
+            if(body.isStatic === false && lives > 0) {
                 body.isStatic = true
-                body.parts[0].render.text.color = SLICED_COLOR
-                sliceCount++
-                document.getElementById('counter').innerHTML = sliceCount
-
+                if(body.label === 'money') {
+                    body.parts[0].render.sprite.texture = generateWordImage('money', SLICED_COLOR)
+                    money += 20
+                    document.getElementById('money').innerHTML = money
+                } else if (body.label === 'bomb') {
+                    body.parts[0].render.sprite.texture = generateWordImage('bomb', SLICED_COLOR)
+                    lives = 0
+                    document.getElementById('lives').innerHTML = lives
+                } else {
+                        score++
+                        body.parts[0].render.sprite.texture = words[body.label].sliced
+                        document.getElementById('counter').innerHTML = score                    
+                }
+                body.parts[0].render.opacity = 0.5
             }
         })
         slicing = false
     }
 }
 
-/**
- * Returns a Body with the param values
- * @param {*} x x coordinate for body to start at
- * @param {*} y y coordinate for body to start at
- * @param {*} v_x initial velocity in the x-direction
- * @param {*} v_y initial velocity in the y-direction
- */
-function makeWord(x, y, size, v_x, v_y, text, color=null) {
-    // create body
-    body = Bodies.text(x, y, text, size, {
-        collisionFilter: { // no collision
-            'group': -1,
-            'category': 2,
-            'mask': 1,
-        },
-        color: color,
-        mass: 1
-        
-    })
+collisionDetected = event => {
+    const pairs = event.pairs
+    for(i = 0; i < pairs.length; i++) {
+        const pair = pairs[i]
 
-    Body.setVelocity(body, {x: v_x, y: v_y})
-    // Body.setAngularVelocity(body, 5)
-
-    return body
+        // check if was collision with the floor
+        if(pair.bodyA.label === 'the floor' || pair.bodyB.label === 'the floor') {
+            projectile = pair.bodyA.label === 'the floor' ? pair.bodyB : pairBodyA
+            // check if a bomb collided with the floor
+            if(projectile.label !== 'bomb' && Body.getVelocity(projectile).y < 0) {
+                lives--
+                document.getElementById('lives').innerHTML = lives
+            }
+            World.remove(engine.world, projectile)
+        }
+    }
 }
 
-// Not in use
-function drawSlicedWord(old) {
-    // create body
-    body = Bodies.text(old.position.x, 
-        old.position.y, 
-        old.parts[0].render.text.content, 
-        old.parts[0].render.text.size, {
-        collisionFilter: { // no collisions
-            'group': -1,
-            'category': 3,
-            'mask': 5,
-        },
-        isStatic: true,
-        // opacity: 0.5
-    })
+// TODO: doesnt work
+function disableScroll() {
+    // Get the current page scroll position
+    scrollTop = window.scrollY || document.documentElement.scrollTop;
+    scrollLeft = window.scrollY || document.documentElement.scrollLeft;
 
-    World.add(engine.world, body)
-}
-
-// Not in use
-function drawSlicedWordOLD(x, y, oldBody) {
-    text = oldBody.render.text.content
-
-    // create body
-    body_left = Bodies.text(x, 
-                            y, 
-                            oldBody.render.text.content, 
-                            oldBody.render.text.size,
-                            {isStatic: true})
-    body_right = Bodies.text(x+50+25, 
-                            y, 
-                            oldBody.render.text.content, 
-                            oldBody.render.text.size,
-                            {isStatic: true})
-    // no collisions
-    body_left.collisionFilter = {
-        'group': -1,
-        'category': 3,
-        'mask': 5,
-        };
-    body_right.collisionFilter = {
-    'group': -1,
-    'category': 3,
-    'mask': 5,
+    // if any scroll is attempted, set this to the previous value
+    window.onscroll = function() {
+        window.scrollTo(scrollLeft, scrollTop);
     };
-
-    World.add(engine.world, body_left)
-    World.add(engine.world, body_right)
 }
 
 /**
@@ -141,18 +108,16 @@ function play(list) {
     });
 }
 
-function setColor(body, color) {
-    body.parts[0].render.text.color = color
-}
-function setText(body, text) {
-    body.parts[0].render.text.content = text
-}
-function setSize(body, size) {
-    body.parts[0].render.text.size = size
-}
-
 function randomColor() {
-    return '#' + Math.floor(Math.random()*16777215).toString(16)
+    switch (Math.floor(Math.random() * 5)) {
+        case 0: return 'blue'
+        case 1: return 'purple'
+        case 2: return 'orange'
+        case 3: return 'red'
+        case 4: return 'cyan'
+        default: 
+            return 'black'        
+    }
 }
 
 function getNumberOfWords(text) {
@@ -165,80 +130,190 @@ function getNumberOfWords(text) {
     return nLines;
 }
 
-function getRandomWordProjectile()  {
-    c = Math.floor(Math.random() * (words.length))
-    index = Math.floor(Math.random() * 150)
-    word = words[index] || 'filler'
+function generateWordImage(word, color) {
+    var imageCanvas = document.createElement('canvas')
+    imageCanvas.width = word.length * 15
+    imageCanvas.height = 30
+    var ctx2 = imageCanvas.getContext('2d')
+    ctx2.font = "30px Arial"
+    ctx2.fillStyle = color
+    ctx2.fillText(word, 10, 25, 150)
+
+    return imageCanvas.toDataURL('image/png')
+}
+
+function getRandomWordProjectile() {
+    keys = Object.keys(words)
+    index = Math.floor(Math.random() * keys.length)
+    word = Object.keys(words)[index] || 'filler'
+    sprite = new Image()
+    if(words[word]) {
+        if(words[word].alive) {
+            sprite.src = words[word].alive
+        }
+    }
 
     x = Math.random() * (WIDTH - 200) + 100
     y = HEIGHT// + Math.random() * 1000
-    w = makeWord(   x, 
-                    y, 
-                    30,
-                    // 0, -10, 
-                    Math.random() * 5 * (x > (WIDTH / 2) ? -1 : 1), 
-                    Math.max(0.2, Math.random()) * -1 * Math.sqrt(2 * engine.gravity.y * y),
-                    // Math.random() * (-1 * engine.gravity.y * (7 + y * -10)) - 10, 
-                    word,
-                    randomColor())
-    // w.isStatic = true
-    return w;
+    body = Bodies.rectangle(x, y, 50, 50,
+                            {
+                                label: word,
+                                render: {
+                                    sprite: {
+                                       texture: sprite.src,
+                                       xScale: 1,
+                                       yScale: 1
+                                    },
+                                },
+                                collisionFilter: { // no collision
+                                    'group': -1,
+                                    'category': 2,
+                                    'mask': 1,
+                                },
+                                mass: 1
+                            })
+
+    Body.setVelocity(body, {    x: Math.max(0.2, Math.random()) * 5 * (x > (WIDTH / 2) ? -1 : 1), 
+                                y: Math.max(0.5, Math.random()) * -1 * (Math.sqrt(2 * y * engine.gravity.y))
+    })
+    Body.setAngularVelocity(body, Math.min(0.2, Math.random()) * (Math.random() > 0.5 ? -1 : 1))
+
+    return body
 }
 
-window.onload = () => {
+function getMoneyProjectile() {
+    word = 'money'
+    sprite = generateWordImage(word, 'green')
 
-    document.getElementById('counter').innerHTML = sliceCount
+    x = Math.random() * (WIDTH - 200) + 100
+    y = HEIGHT// + Math.random() * 1000
+    body = Bodies.rectangle(x, y, 50, 50,
+                            {
+                                label: word,
+                                render: {
+                                    sprite: {
+                                       texture: sprite,
+                                       xScale: 1,
+                                       yScale: 1
+                                    },
+                                },
+                                collisionFilter: { // no collision
+                                    'group': -1,
+                                    'category': 2,
+                                    'mask': 1,
+                                },
+                                mass: 1
+                            })
 
-    // get all the possible words from the text file
-    fetch('./libraries/words.txt').then(response => {
-        return response.text()
-    }).then(fileContent => {
-        words = fileContent.trim().split('\n');
-    }).then(r => { 
+    Body.setVelocity(body, {    x: Math.max(0.2, Math.random()) * 5 * (x > (WIDTH / 2) ? -1 : 1), 
+                                y: Math.max(0.4, Math.random()) * -1 * Math.sqrt(2 * y * engine.gravity.y)
+    })
+    Body.setAngularVelocity(body, Math.min(0.2, Math.random()) * (Math.random() > 0.5 ? -1 : 1))
+
+    return body
+}
+
+function getBombProjectile() {
+    word = 'bomb'
+    sprite = generateWordImage(word, 'black')
+
+    x = Math.random() * (WIDTH - 200) + 100
+    y = HEIGHT// + Math.random() * 1000
+    body = Bodies.rectangle(x, y, 50, 50,
+                            {
+                                label: word,
+                                render: {
+                                    sprite: {
+                                       texture: sprite,
+                                       xScale: 1,
+                                       yScale: 1
+                                    },
+                                },
+                                collisionFilter: { // no collision
+                                    'group': -1,
+                                    'category': 2,
+                                    'mask': 1,
+                                },
+                                mass: 1
+                            })
+
+    Body.setVelocity(body, {    x: Math.max(0.2, Math.random()) * 5 * (x > (WIDTH / 2) ? -1 : 1), 
+                                y: Math.max(0.3, Math.random()) * -1 * Math.sqrt(2 * y * engine.gravity.y)
+    })
+    Body.setAngularVelocity(body, Math.min(0.2, Math.random()) * (Math.random() > 0.5 ? -1 : 1))
+
+    return body
+}
+
+function getFloor() {
+    return Bodies.rectangle(0, HEIGHT+100, WIDTH*2, 1, {
+        label: 'the floor',
+        isStatic: true,
+        collisionFilter: {
+            group: 4,
+            category: 1,
+            mask: 2
+        }
+    })
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+window.onload = async () => {
+
+    document.getElementById('counter').innerHTML = score
+    document.getElementById('lives').innerHTML = lives
+    document.getElementById('money').innerHTML = money
+
+    // get the word list from the server
+    await fetch('words').then(response => {
+        return response.json()
+    })
+    .then(json => {
+
+        // map words to images
+        word_array = json.words.trim().split('\n');
+        for(i = 0; i < word_array.length; i++) {
+            words[word_array[i]] = { 'alive': generateWordImage(word_array[i], randomColor()),
+                            'sliced': generateWordImage(word_array[i], SLICED_COLOR) }
+        }
+
+        // turn off scroll
+        disableScroll()
+
+        /* MATTER JS INITIALIZATION */
+
         // create an engine
         engine = Engine.create({
         });
 
-        for(i = 0; i < 10; i++) {
-            body = getRandomWordProjectile()
-            bodies.push(body);
-        }
-        bodies.push(Bodies.rectangle(0, HEIGHT, WIDTH*2, 10, {
-            isStatic: true
-        }))
+        // set gravity strength // change for increased speed of game
+        engine.gravity.y = 0.2
         
-        body = Bodies.rectangle(300, 300, 100, 200, {
-            collisionFilter: { // no collision
-                'group': -1,
-                'category': 2,
-                'mask': 1,
-            },
-            // isStatic: true
-        })
-        Body.setVelocity(body, {x: 1, y: -2})
-        // Body.setAngularSpeed(body, 0.1)
-        bodies.push(body)
-    }).then(r2 => {
-
         // create a renderer
         render = Render.create({
-            element: document.body,
+            element: document.getElementById('canvas'),
             engine: engine,
             showCollisions: true,
             options: {
                 wireframeBackground: 'green',
-                wireframes: true,
-                width: WIDTH,
-                height: HEIGHT,
-                background: 'transparent'
+                wireframes: false,
+                width: window.innerWidth - MARGIN,
+                height: window.innerHeight - MARGIN,
+                background: 'yellow'
             },
         });
 
-        engine.gravity.y = 0.2
+        // set canvas size
+        WIDTH = window.innerWidth - MARGIN
+        HEIGHT = window.innerHeight - MARGIN
+        render.canvas.setAttribute('width', WIDTH + "px")
+        render.canvas.setAttribute('height', HEIGHT + "px")
 
         // add mouse control
         var mouse = Mouse.create(render.canvas)
-        // mouse.collisionFilter.group = 0
         var mouseConstraint = MouseConstraint.create(engine, {
             mouse: mouse,
             constraint: {
@@ -249,25 +324,76 @@ window.onload = () => {
                 category: 1
             }
         });
-
         Events.on(mouseConstraint, 'mousedown', () => mousePressed = true) 
         Events.on(mouseConstraint, 'mouseup', () => mousePressed = false) 
         Events.on(mouseConstraint, 'mousemove', sliced) 
 
-
+        // add mouse contraint to world
         Composite.add(engine.world, mouseConstraint);
 
         // keep the mouse in sync with rendering
         render.mouse = mouse;
 
-        // add all of the bodies to the world
-        World.add(engine.world, bodies);
+        // add the floor to the world
+        floor = getFloor()
+        World.add(engine.world, floor)
+
+        
+        //  resize canvas if window resizes
+        addEventListener('resize', (event) => {
+            WIDTH = window.innerWidth - MARGIN
+            HEIGHT = window.innerHeight - MARGIN
+            render.canvas.setAttribute('width', WIDTH + "px")
+            render.canvas.setAttribute('height', HEIGHT + "px")
+            World.remove(engine.world, floor)
+            floor = getFloor()
+            World.add(engine.world, floor)
+        })
+
+        Matter.Events.on(engine, 'collisionStart', collisionDetected)
 
         // run the engine
         Runner.run(engine);
 
         // run the renderer
         Render.run(render);
+
+        // start the game
+        update()  
     })
 
 }
+
+update = async function() {
+
+    if(lives > 0) {
+        waittime = Math.random() * 3000 + 1000
+        await delay(waittime).then()
+        
+        // temporal recursion, call the function in the future
+        window.requestAnimationFrame( update )
+    
+        switch (Math.floor(Math.random() * 10)) {
+            case 0: // normal word
+                body = getRandomWordProjectile()
+                bodies.push(body);
+                break;
+            case 1: // money word
+                body = getMoneyProjectile()
+                bodies.push(body);
+                break;
+            case 2: // bomb
+                body = getBombProjectile()
+                bodies.push(body);
+                break;
+            default: // normal word
+                body = getRandomWordProjectile()
+                bodies.push(body);
+                break;
+        }
+        
+        World.add(engine.world, body)
+    }
+}
+  
+
