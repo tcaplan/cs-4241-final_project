@@ -1,3 +1,11 @@
+//ignore these comments im saving font links
+//https://fonts.google.com/specimen/Nanum+Brush+Script
+//https://fonts.google.com/specimen/Pixelify+Sans
+//https://fonts.google.com/specimen/Jolly+Lodger
+//https://fonts.google.com/specimen/Nova+Cut
+//https://fonts.google.com/specimen/Mansalva
+//https://fonts.google.com/specimen/Iceland
+
 
 let money = 0;
 let user = "GUEST";
@@ -19,6 +27,7 @@ const mainMenu = document.getElementById("main");
 const shopMenu = document.getElementById("shop");
 const questMenu = document.getElementById("quests");
 const log = document.getElementById("log");
+const scores = document.getElementById("scores");
 const pauseBtn = document.getElementById("pause");
 
 //start or unpause game
@@ -80,12 +89,18 @@ function loginScreen() {
     log.style.display = "flex";
 }
 
+function showScores() {
+    mainMenu.style.display = "none";
+    scores.style.display = "flex";
+}
+
 //back to main menu (or pause menu)
 function back() {
     mainMenu.style.display = "flex";
     shopMenu.style.display = "none";
     questMenu.style.display = "none";
     log.style.display = "none";
+    scores.style.display = "none";
 }
 
 //buy blade
