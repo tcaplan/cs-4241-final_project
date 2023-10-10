@@ -133,7 +133,7 @@ function setAll() {
     usertext.innerHTML = user;
 
     for (let i = 0; i < blades.length; i++) {
-        const curBlade = document.getElementById("shopbtn" + i);
+        const curBlade = document.getElementById("shopbtn" + (i+1));
         const useBtn = document.getElementById("bladebtn" + i);
         if (blades[i][0] == true) {
             curBlade.style.display = "none";
@@ -207,29 +207,66 @@ function switchLogRegister() {
 }
 
 async function login(u, p) {
-    //server stuff here
+    try {
+        // Check if username and password are provided
+        if ((u === '') || (p === '')) {
+            error("Username and Password are required fields!");
+            return;
+        }
 
-    if ((u === '') || (p === '')) {
-        error("Username and Password are required fields!");
-    }
-    if (u == 'GUEST' || u == 'guest') {
-        error("Username taken!");
-    }
+        // Check if the username is 'GUEST' or 'guest'
+        if (u.toLowerCase() === 'guest') {
+            error("Username taken!");
+            return;
+        }
 
-    //setAll();
+        const loginAttempt = await attemptLogin(u, p); 
+
+        if (loginAttempt.success) {
+            console.log("Login successful.");
+            user = u;
+            setAll();
+        } else {
+            console.log("Login failed:", loginAttempt.message);
+            error("Incorrect Username and Password.");
+        }
+    } catch (error) {
+        console.error('Error in login:', error.message);
+    }
 }
 
+
+
 async function register(u, p) {
-    //server stuff here
+    try {
+        // Check if username and password are provided
+        if ((u === '') || (p === '')) {
+            error("Username and Password are required fields!");
+            return; 
+        }
 
-    if ((u === '') || (p === '')) {
-        error("Username and Password are required fields!");
-    }
-    if (u == 'GUEST' || u == 'guest') {
-        error("Username taken!");
-    }
+        // Check if the username is 'GUEST' or 'guest'
+        if (u.toLowerCase() === 'guest') {
+            error("Username taken!");
+            return;
+        }
 
-    setAll();
+        const registrationAttempt = await attemptRegister(u, p);
+      
+        if (registrationAttempt.success) {
+            console.log("Registration successful.");
+            user = u;
+            setAll();
+        } else {
+            if (registrationAttempt.status === 400) {
+                error("Username taken!");
+            } else {
+                error("Registration failed.")
+            }
+        }
+    } catch (error) {
+        console.error('Error in registration:', error.message);
+    }
 }
 
 function error(text) {
@@ -249,4 +286,46 @@ window.onload = function() {
 
     //insert cookie stuff here
     //probably setAll() after cookies set variables 
+}
+
+
+async function attemptLogin(u, p) {
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: u, password: p })
+        });
+
+        const data = await response.json();
+        console.log(data);
+
+        return data;
+    } catch (error) {
+        console.error('Error logging in:', error);
+        throw error; // Re-throw the error to handle it in the calling function
+    }
+}
+
+
+async function attemptRegister(u, p) {
+    try {
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: u, password: p })
+        });
+
+        const data = await response.json();
+        console.log(data);
+
+        return data;
+    } catch (error) {
+        console.error('Error during registration:', error);
+        throw error; // Re-throw the error to handle it in the calling function
+    }
 }
