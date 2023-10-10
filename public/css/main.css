@@ -6,3 +6,14 @@
     margin-top: -250px;
     transform: translate(30px, 250px);
 }
+
+#canvases {
+    position: relative;
+}
+
+.bottom-layer {
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    z-index: -1;
+}
