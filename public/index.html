@@ -55,6 +55,22 @@
             <button id = "quit" onclick = "back()">QUIT TO MAIN</button>
         </div>
 
+        <div class = "box" id = "gameEnd">
+            <h1 id = "maintext">GAME OVER</h1>
+            <div class = "stat">
+                <div class="stat">
+                    <label for="counter">Sliced</label>
+                    <p id="counter2"></p>
+                </div>
+                <div class="stat">
+                    <label for="money">Money</label>
+                    <p id="money2"></p>
+                </div>
+            </div>
+            <button id = "resume" onclick = "playButton(true)">PLAY AGAIN</button>
+            <button id = "quit" onclick = "back()">QUIT TO MAIN</button>
+        </div>
+
         <div class = "box" id = "scores">
             <h1>HIGH SCORES</h1> <!-- or GAME OVER -->
             <button class = "backbtn" id = "backshop" onclick = "back()">BACK</button>

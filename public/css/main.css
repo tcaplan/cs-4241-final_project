@@ -118,7 +118,7 @@ h3 {
     font-size: 25px;
 }
 
-#shop, #log, #quests, .bladebtn, .gameHeader, #scores, #pauseMenu{
+#shop, #log, #quests, .bladebtn, .gameHeader, #scores, #pauseMenu, #gameEnd{
     display: none;
 }
 
@@ -219,6 +219,10 @@ button:active {
     font-size: larger;
 }
 
+#gameEnd {
+    font-size: x-large;
+}
+
 
 .popupContainer {
     position: fixed;
@@ -290,6 +294,6 @@ form label {
     font-size: 20px;
 }
 
-#main button, #pauseMenu button {
+#main button, #pauseMenu button, #gameEnd button{
     font-size: xx-large;
 }

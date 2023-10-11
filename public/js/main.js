@@ -134,6 +134,7 @@ sliced = event => {
                     body.parts[0].render.sprite.texture = generateWordImage('money', SLICED_COLOR)
                     money += 20
                     document.getElementById('money').innerHTML = money
+                    document.getElementById('money2').innerHTML = money
                 } else if (body.label === 'bomb') {
                     body.parts[0].render.sprite.texture = generateWordImage('bomb', SLICED_COLOR)
                     lives = 0
@@ -141,9 +142,10 @@ sliced = event => {
                     document.getElementById('lives').innerHTML = lives
                     gameOver();
                 } else {
-                        score++
-                        body.parts[0].render.sprite.texture = words[body.label].sliced
-                        document.getElementById('counter').innerHTML = score                    
+                    score++
+                    body.parts[0].render.sprite.texture = words[body.label].sliced
+                    document.getElementById('counter').innerHTML = score 
+                    document.getElementById('counter2').innerHTML = score                   
                 }
                 body.parts[0].render.opacity = 0.5
             }
@@ -202,11 +204,13 @@ const log = document.getElementById("log");
 const scores = document.getElementById("scores");
 const pauseMenu = document.getElementById("pauseMenu");
 const gameHeader = document.getElementById("gameHeader");
+const gameEnd = document.getElementById("gameEnd");
 
 //start or unpause game
 function playButton(start) {
     mainMenu.style.display = "none";
     pauseMenu.style.display = "none";
+    gameEnd.style.display = "none";
     gameHeader.style.display = "block";
 
     //if start = true, start from beginning, else unpause
@@ -227,15 +231,8 @@ function pauseButton() {
 function gameOver() {
     totalmoney += money;
     gameReset(true);
-    mainMenu.style.display = "flex";
+    gameEnd.style.display = "flex";
     gameHeader.style.display = "none";
-
-    const playbtn = document.getElementById("play");
-    playbtn.setAttribute('onclick',"playButton(true)");
-    playbtn.innerHTML = 'PLAY AGAIN';
-
-    const mainText = document.getElementById("maintext");
-    mainText.innerHTML = 'GAME OVER';
 }
 
 function shop() {
@@ -280,6 +277,7 @@ function back() {
     log.style.display = "none";
     scores.style.display = "none";
     pauseMenu.style.display = "none";
+    gameEnd.style.display = "none";
 }
 
 //buy blade
@@ -651,6 +649,9 @@ function gameInit() {
 }
 
 function gameReset(isPaused) {
+    document.getElementById('counter2').innerHTML = score
+    document.getElementById('money2').innerHTML = money
+
     // game settings
     lives = 3
     money = 0
