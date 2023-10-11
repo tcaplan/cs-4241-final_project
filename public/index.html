@@ -13,7 +13,7 @@
     <header>
     </header>
 
-    <!-- <button class = "pausebtn" id = "pause" onclick = "pause()">PAUSE</button> -->
+    <button class = "pausebtn" id = "pause" onclick = "pauseButton()">PAUSE</button>
 
     <div class="flex">
         
@@ -21,7 +21,7 @@
             <h1 id = "maintext">WORD SLICE</h1> <!-- or GAME OVER -->
             <h2 id = "user">GUEST</h2>
             <h2 id = "highscore">HIGH SCORE: 0</h2>
-            <button id = "play" onclick = "play(true)">PLAY</button>
+            <button id = "play" onclick = "playButton(true)">PLAY</button>
             <button id = "score-btn" onclick = "showScores()">LEADERBOARD</button>
             <button id = "shop-btn" onclick = "shop()">SHOP</button>
             <button id = "quests-btn" onclick = "questM()">QUESTS</button>
@@ -30,8 +30,8 @@
 
         <div class = "box" id = "pauseMenu">
             <h1 id = "maintext">PAUSED</h1>
-            <button id = "resume" onclick = "play(false)">RESUME</button>
-            <button id = "restart" onclick = "play(true)">RESTART</button>
+            <button id = "resume" onclick = "playButton(false)">RESUME</button>
+            <button id = "restart" onclick = "playButton(true)">RESTART</button>
             <button id = "quit" onclick = "back()">QUIT TO MAIN</button>
         </div>
 

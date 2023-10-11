@@ -190,19 +190,23 @@ const pauseMenu = document.getElementById("pauseMenu");
 const pauseBtn = document.getElementById("pause");
 
 //start or unpause game
-function play(start) {
+function playButton(start) {
     mainMenu.style.display = "none";
     pauseMenu.style.display = "none";
     pauseBtn.style.display = "block";
 
     //if start = true, start from beginning, else unpause
     //canvas stuff here
+    if (start === true) {
+        gameReset()
+    }
+    play(projectiles);
 }
 
-function pause() {
+function pauseButton() {
     pauseMenu.style.display = "flex";
     pauseBtn.style.display = "none";
-
+    pause(projectiles);
     //canvas stuff here
 }
 
@@ -211,7 +215,7 @@ function gameOver() {
     pauseBtn.style.display = "none";
 
     const playbtn = document.getElementById("play");
-    playbtn.setAttribute('onclick',"play(true)");
+    playbtn.setAttribute('onclick',"playButton(true)");
     playbtn.innerHTML = 'PLAY AGAIN';
 
     const mainText = document.getElementById("maintext");
@@ -572,7 +576,7 @@ function gameInit() {
     resizeCanvases()
 
     document.getElementById('reset').onclick = gameReset
-    document.getElementById('pause').onclick = () => {
+    /* document.getElementById('pause').onclick = () => {
         paused = !paused
         if(paused) { 
             play(projectiles)
@@ -581,7 +585,7 @@ function gameInit() {
             pause(projectiles)
             document.getElementById('pause').innerHTML = 'Play'
         }
-    }
+    } */
 
     // add mouse control
     mouse = Mouse.create(render.canvas)
