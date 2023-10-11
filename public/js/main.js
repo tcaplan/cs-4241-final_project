@@ -16,6 +16,8 @@ lives = 3
 money = 0
 score = 0
 
+paused = false
+
 MARGIN = 100
 WIDTH = 0
 HEIGHT = 0
@@ -24,6 +26,8 @@ MAX_SLICES = 4
 
 var engine
 var render
+var mouse
+var mouseConstraint
 
 words = {}
 projectiles = []
@@ -43,20 +47,72 @@ let offsetY
 
 currentBlade = null
 
-function Blade(down, up, move) {
-    this.down = down
-    this.up = up
+bladeMouseMoveText = (text, font, color='random') => {
+    return (
+    event => {
+        if(!isDown){return;}
+        event.preventDefault();
+        
+        mouseX=parseInt(event.clientX-offsetX);
+        mouseY=parseInt(event.clientY-offsetY);
+        
+        bladeCTX.fillStyle = color === 'random' ? randomColor() : color
+        bladeCTX.font = font
+        bladeCTX.fillText(text, startX, startY)
+        startX=mouseX;
+        startY=mouseY;
+    })
+}
+
+baseBlade = new Blade(
+    event => {
+        if(!isDown){return;}
+        // event.preventDefault();
+        
+        mouseX=parseInt(event.clientX-offsetX);
+        mouseY=parseInt(event.clientY-offsetY);
+        
+        bladeCTX.beginPath();  // use beginPath for every segment of the line
+        bladeCTX.moveTo(startX,startY);
+        bladeCTX.lineTo(mouseX,mouseY);
+        bladeCTX.fillStyle = 'black'
+        bladeCTX.stroke();
+        startX=mouseX;
+        startY=mouseY;
+    }
+)
+emojiBlade = new Blade(bladeMouseMoveText(':D', '10px Arial', 'black'))
+rainbowEmojiBlade = new Blade(bladeMouseMoveText(':D', '10px Arial'))
+dotBlade = new Blade(bladeMouseMoveText('.', '30px Arial', 'black'))
+rainbowDotBlade = new Blade(bladeMouseMoveText('.', '30px Arial'))
+emoticonBlade = new Blade(bladeMouseMoveText('\\_(^o^)_/', '15px Arial', 'black'))
+rainbowEmoticonBlade = new Blade(bladeMouseMoveText('\\_(^o^)_/', '15px Arial'))
+
+function Blade(move) {
+    this.down = event => {
+        event.preventDefault();
+        startX=parseInt(event.clientX-offsetX);
+        startY=parseInt(event.clientY-offsetY);
+        isDown=true;
+    }
+    this.up = (event=null) => {
+        if(event) {
+            event.preventDefault()
+        }
+        isDown = false
+        bladeCTX.clearRect(0, 0, bladeCanvas.width, bladeCanvas.height);    
+    }
     this.move = move
     this.enable = () => {
-        document.getElementById('matter-js-canvas').addEventListener('mousedown', down)
-        document.getElementById('matter-js-canvas').addEventListener('mouseup', up)
-        document.getElementById('matter-js-canvas').addEventListener('mousemove', move)
+        document.getElementById('matter-js-canvas').addEventListener('mousedown', this.down)
+        document.getElementById('matter-js-canvas').addEventListener('mouseup', this.up)
+        document.getElementById('matter-js-canvas').addEventListener('mousemove', this.move)
     }
     this.disable = () => {
         this.up()
-        document.getElementById('matter-js-canvas').removeEventListener('mousedown', down)
-        document.getElementById('matter-js-canvas').removeEventListener('mouseup', up)
-        document.getElementById('matter-js-canvas').removeEventListener('mousemove', move)
+        document.getElementById('matter-js-canvas').removeEventListener('mousedown', this.down)
+        document.getElementById('matter-js-canvas').removeEventListener('mouseup', this.up)
+        document.getElementById('matter-js-canvas').removeEventListener('mousemove', this.move)
     }
 }
 
@@ -134,8 +190,9 @@ function pause(list) {
  */
 function play(list) {
     list.forEach(element => {
-        element.isStatic = true
+        element.isStatic = false
     });
+    update()
 }
 
 function randomColor() {
@@ -305,46 +362,119 @@ function resizeCanvases() {
 }
 
 function getCurrentBlade() {
-    mouseDownEvent = event => {
-        event.preventDefault();
-        startX=parseInt(event.clientX-offsetX);
-        startY=parseInt(event.clientY-offsetY);
-        isDown=true;
-    }
-
-    mouseUpEvent = (event=null) => {
-        if(event) {
-            event.preventDefault()
-        }
-        isDown = false
-        bladeCTX.clearRect(0, 0, bladeCanvas.width, bladeCanvas.height);    
-    }
-
-    mouseMoveEvent = event => {
-        if(!isDown){return;}
-        event.preventDefault();
-        
-        mouseX=parseInt(event.clientX-offsetX);
-        mouseY=parseInt(event.clientY-offsetY);
-        
-        bladeCTX.beginPath();  // use beginPath for every segment of the line
-        bladeCTX.moveTo(startX,startY);
-        bladeCTX.lineTo(mouseX,mouseY);
-        bladeCTX.fillStyle = 'black'
-        bladeCTX.stroke();
-        startX=mouseX;
-        startY=mouseY;
-    }
-
-    return new Blade(mouseDownEvent, mouseUpEvent, mouseMoveEvent)
+    return rainbowEmojiBlade
 }
 
-window.onload = async () => {
+function gameInit() {
+    // create an engine
+    engine = Engine.create({
+    });
 
+    // set gravity strength // change for increased speed of game
+    engine.gravity.y = 0.2
+    
+    // create a renderer
+    render = Render.create({
+        element: document.getElementById('canvases'),
+        engine: engine,
+        showCollisions: true,
+        options: {
+            wireframeBackground: 'green',
+            wireframes: false,
+            width: window.innerWidth - MARGIN,
+            height: window.innerHeight - MARGIN,
+            background: 'transparent'
+        },
+    });
+
+    // set canvas size
+    resizeCanvases()
+
+    document.getElementById('reset').onclick = gameReset
+    document.getElementById('pause').onclick = () => {
+        paused = !paused
+        if(paused) { 
+            play(projectiles)
+            document.getElementById('pause').innerHTML = 'Pause'
+        } else {
+            pause(projectiles)
+            document.getElementById('pause').innerHTML = 'Play'
+        }
+    }
+
+    // add mouse control
+    mouse = Mouse.create(render.canvas)
+    mouseConstraint = MouseConstraint.create(engine, {
+        mouse: mouse,
+        constraint: {
+            stiffness: 0.2,
+            render: {
+                visible: false
+            },
+            category: 1
+        }
+    });
+    Events.on(mouseConstraint, 'mousedown', () => mousePressed = true) 
+    Events.on(mouseConstraint, 'mouseup', () => mousePressed = false) 
+    Events.on(mouseConstraint, 'mousemove', sliced) 
+
+    // add mouse contraint to world
+    Composite.add(engine.world, mouseConstraint);
+
+    // keep the mouse in sync with rendering
+    render.mouse = mouse;
+    
+    //  resize canvas if window resizes
+    addEventListener('resize', (event) => {
+        resizeCanvases()
+        World.remove(engine.world, floor)
+        floor = getFloor()
+        World.add(engine.world, floor)
+    })
+
+    // collision event
+    Matter.Events.on(engine, 'collisionStart', collisionDetected)
+
+    // run the engine
+    Runner.run(engine);
+
+    // run the renderer
+    Render.run(render);
+
+    // set game values
+    gameReset()
+
+    // start the game
+    update() 
+}
+
+function gameReset() {
+    // game settings
+    lives = 3
+    money = 0
+    score = 0
+    paused = false
+    document.getElementById('pause').innerHTML = 'Pause'
     document.getElementById('counter').innerHTML = score
     document.getElementById('lives').innerHTML = lives
     document.getElementById('money').innerHTML = money
 
+    World.remove(engine.world, Composite.allBodies(engine.world))
+    console.log('bodies left: ' + Composite.allBodies(engine.world))
+
+    // add the floor to the world
+    floor = getFloor()
+    World.add(engine.world, floor)
+
+    // enable current blade
+    currentBlade = getCurrentBlade()
+    currentBlade.enable()
+
+    update()
+}
+
+window.onload = async () => {
+    
     bladeCanvas = document.getElementById('canvas-blade')
     bladeCTX = bladeCanvas.getContext('2d')
 
@@ -364,94 +494,20 @@ window.onload = async () => {
         // turn off scroll
         disableScroll()
 
-        /* MATTER JS INITIALIZATION */
-
-        // create an engine
-        engine = Engine.create({
-        });
-
-        // set gravity strength // change for increased speed of game
-        engine.gravity.y = 0.2
-        
-        // create a renderer
-        render = Render.create({
-            element: document.getElementById('canvases'),
-            engine: engine,
-            showCollisions: true,
-            options: {
-                wireframeBackground: 'green',
-                wireframes: false,
-                width: window.innerWidth - MARGIN,
-                height: window.innerHeight - MARGIN,
-                background: 'transparent'
-            },
-        });
-
-        // set canvas size
-        resizeCanvases()
-        
-
-        // add mouse control
-        var mouse = Mouse.create(render.canvas)
-        var mouseConstraint = MouseConstraint.create(engine, {
-            mouse: mouse,
-            constraint: {
-                stiffness: 0.2,
-                render: {
-                    visible: false
-                },
-                category: 1
-            }
-        });
-        Events.on(mouseConstraint, 'mousedown', () => mousePressed = true) 
-        Events.on(mouseConstraint, 'mouseup', () => mousePressed = false) 
-        Events.on(mouseConstraint, 'mousemove', sliced) 
-
-        // add mouse contraint to world
-        Composite.add(engine.world, mouseConstraint);
-
-        // keep the mouse in sync with rendering
-        render.mouse = mouse;
-
-        // add the floor to the world
-        floor = getFloor()
-        World.add(engine.world, floor)
-
-        
-        //  resize canvas if window resizes
-        addEventListener('resize', (event) => {
-            resizeCanvases()
-            World.remove(engine.world, floor)
-            floor = getFloor()
-            World.add(engine.world, floor)
-        })
-
-        Matter.Events.on(engine, 'collisionStart', collisionDetected)
-
-        // run the engine
-        Runner.run(engine);
-
-        // run the renderer
-        Render.run(render);
-
-        // enable current blade
-        currentBlade = getCurrentBlade()
-        currentBlade.enable()
-
-        // start the game
-        update()  
+        /* MATTER JS INITIALIZATION */ 
+        gameInit()
     })
 
 }
 
 update = async function() {
 
-    if(lives > 0) {
+    if(!paused && lives > 0) {
         waittime = Math.random() * 3000 + 1000
         await delay(waittime).then()
         
         // check again after delay
-        if(lives > 0) {
+        if(!paused && lives > 0) {
             // temporal recursion, call the function in the future
             window.requestAnimationFrame( update )
                 

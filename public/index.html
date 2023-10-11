@@ -13,21 +13,33 @@
     <header>
     </header>
 
-    <main>
-        <div id="stats">
-            <label for="counter">Sliced: </label>
-            <p id="counter"></p>
-
-            <label for="lives">Lives: </label>
-            <p id="lives"></p>
-
-            <label for="money">Money: </label>
-            <p id="money"></p>
-        </div>
-        
+    <main>        
         <div id="canvases">
             <canvas id="canvas-blade" class="bottom-layer"></canvas>
         </div>
+
+        <div id="stats">
+            <div class="stat">
+                <label for="counter">Sliced</label>
+                <p id="counter"></p>
+            </div>
+
+            <div class="stat">
+                <label for="lives">Lives</label>
+                <p id="lives"></p>
+            </div>
+
+            <div class="stat">
+                <label for="money">Money</label>
+                <p id="money"></p>
+            </div>
+
+            <button id="reset">Reset</button>
+            <button id="pause">Pause</button>
+
+        </div>
+
+
     </main>    
     <script src="js/main.js"></script>
 </body>
