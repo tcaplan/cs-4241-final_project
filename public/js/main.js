@@ -399,6 +399,7 @@ function getNumberOfWords(text) {
 
 function generateWordImage(word, color) {
     var imageCanvas = document.createElement('canvas')
+    imageCanvas.style.zIndex = -1;
     var ctx2 = imageCanvas.getContext('2d')
     ctx2.font = "30px Arial"
     imageCanvas.width = ctx2.measureText(word).width;
