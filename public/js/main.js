@@ -45,7 +45,7 @@ let startY
 let offsetX
 let offsetY
 
-currentBlade = null
+currentBlade2 = null
 
 bladeMouseMoveText = (text, font, color='random') => {
     return (
@@ -131,7 +131,7 @@ sliced = event => {
                 } else if (body.label === 'bomb') {
                     body.parts[0].render.sprite.texture = generateWordImage('bomb', SLICED_COLOR)
                     lives = 0
-                    currentBlade.disable()
+                    currentBlade2.disable()
                     document.getElementById('lives').innerHTML = lives
                 } else {
                         score++
@@ -164,7 +164,7 @@ collisionDetected = event => {
     }
 }
 
-let money = 0;
+// let money = 0;
 let user = "GUEST";
 let highscore = 0;
 
@@ -631,20 +631,21 @@ function gameReset() {
     document.getElementById('money').innerHTML = money
 
     World.remove(engine.world, Composite.allBodies(engine.world))
-    console.log('bodies left: ' + Composite.allBodies(engine.world))
 
     // add the floor to the world
     floor = getFloor()
     World.add(engine.world, floor)
 
     // enable current blade
-    currentBlade = getCurrentBlade()
-    currentBlade.enable()
+    currentBlade2 = getCurrentBlade()
+    currentBlade2.enable()
 
     update()
 }
 
 window.onload = async () => {
+
+    switchLogRegister();
     
     bladeCanvas = document.getElementById('canvas-blade')
     bladeCTX = bladeCanvas.getContext('2d')
@@ -663,7 +664,7 @@ window.onload = async () => {
         }
 
         // turn off scroll
-        disableScroll()
+        // disableScroll()
 
         /* MATTER JS INITIALIZATION */ 
         gameInit()
@@ -779,10 +780,3 @@ function exitPopup() {
     const popup = document.querySelector( '#errorPop' );
     popup.style.display = "none";
   }
-
-window.onload = function() {
-    switchLogRegister();
-
-    //insert cookie stuff here
-    //probably setAll() after cookies set variables 
-}
