@@ -4,7 +4,7 @@ let user = "GUEST";
 let highscore = 0;
 
 let blades = [
-    [false, 0],
+    [true, 0],
     [false, 50]
     ];
 
@@ -58,7 +58,7 @@ function shop() {
     shopMenu.style.display = "flex";
 
     const shopmoneytext = document.getElementById("shopm");
-    shopmoneytext.innerHTML = "Money: " + money;
+    shopmoneytext.innerHTML = "MONEY: " + money;
 }
 
 function questM() {
