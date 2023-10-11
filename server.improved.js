@@ -32,7 +32,7 @@ app.get('/words', (request, response) => {
 })
 
 // set up the server
-app.listen(`${process.env.PORT}`)
+app.listen(3000 || `${process.env.PORT}`)
 
 
 /************************************************************************/
