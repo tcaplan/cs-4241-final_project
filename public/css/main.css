@@ -23,3 +23,151 @@
     top: 0; 
     z-index: -1;
 }
+
+html {
+    height: 100%;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.flex {
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+  
+.flex .box {
+    width: 500px;
+    max-width: 80%;
+    background-color: white;
+    padding: 30px;
+    border-radius: 25px;
+    border: 5px solid black;
+    height: 400px;
+    max-height: 80%;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+p {
+    margin: 5px;
+}
+
+#shop, #log, #quests, #restart, .bladebtn, #pause {
+    display: none;
+}
+
+#bladebtn0 {
+    display: block;
+}
+
+button {
+    margin: 10px;
+    padding: 5px;
+    font-size: 25px;
+    background-color: black;
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 5px 10px;
+    color: white;
+    outline: none;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+button:hover {
+    box-shadow: 2px 2px 0px 0px;
+    border-color: black;
+    background-color: white;
+    color: black;
+}
+
+button:active {
+    border-color: black;
+    background-color: white;
+    box-shadow: none;
+    color: black;
+}
+
+.listcontainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: scroll;
+}
+
+.listitem {
+    background-color: darkgrey;
+    border: 2px solid black;
+}
+
+.menu-txt {
+    float: left;
+    padding: 5px;
+    margin: 5px;
+    margin-left: 15px;
+    text-align: left;
+}
+
+.quest-status{
+    float: right;
+    margin: 30px;
+    margin-right: 15px;
+    margin-left: 15px;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: red;
+}
+
+.shopbtn, .bladebtn {
+    float: right;
+    margin: 30px;
+    margin-right: 15px;
+    margin-left: 15px;
+}
+
+.linktext {
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.pausebtn {
+    float: right;
+    margin: 20px;
+}
+
+
+.popupContainer {
+    position: fixed;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0,0,0,0.6);
+  }
+
+.popup {
+    max-width: 80%;
+    background-color: white;
+    padding: 30px;
+    border-radius: 25px;
+    border: 5px solid black;
+    text-align: center;
+}
