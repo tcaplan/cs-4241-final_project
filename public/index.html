@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="libraries/matter.js"></script>
     <link rel="stylesheet" type="text/css" href="./css/main.css" media="screen,handheld">
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link href="https://fonts.googleapis.com/css2?family=Iceland&display=swap" rel="stylesheet">
+    <!--<link rel="icon" href="data:;base64,iVBORw0KGgo=">-->
 </head>
     <body>
     <header>
@@ -17,18 +18,31 @@
     <div class="flex">
         
         <div class = "box" id = "main">
-            <h1 id = "maintext">WORD NINJA</h1> <!-- or GAME OVER -->
-            <p id = "user">GUEST</p>
-            <p id = "highscore">High score: 0</p>
+            <h1 id = "maintext">WORD SLICE</h1> <!-- or GAME OVER -->
+            <h2 id = "user">GUEST</h2>
+            <h2 id = "highscore">HIGH SCORE: 0</h2>
             <button id = "play" onclick = "play(true)">PLAY</button>
+            <button id = "score-btn" onclick = "showScores()">LEADERBOARD</button>
             <button id = "shop-btn" onclick = "shop()">SHOP</button>
             <button id = "quests-btn" onclick = "questM()">QUESTS</button>
             <button id = "log-btn" onclick = "loginScreen()">LOGIN</button> <!-- or LOG OUT -->
         </div>
 
+        <div class = "box" id = "pauseMenu">
+            <h1 id = "maintext">PAUSED</h1>
+            <button id = "resume" onclick = "play(false)">RESUME</button>
+            <button id = "restart" onclick = "play(true)">RESTART</button>
+            <button id = "quit" onclick = "back()">QUIT TO MAIN</button>
+        </div>
+
+        <div class = "box" id = "scores">
+            <h1>HIGH SCORES</h1> <!-- or GAME OVER -->
+            <button class = "backbtn" id = "backshop" onclick = "back()">BACK</button>
+        </div>
+
         <div class = "box" id = "shop">
             <h1>BLADE SHOP</h1>
-            <p id = "shopm">Money: 0</p>
+            <h2 id = "shopm">MONEY: 0</h2>
             <div class = "listcontainer">
                 <div class = "listitem">
                     <div class = "menu-txt">
@@ -71,7 +85,7 @@
         </div>
 
         <div class = "box" id = "log">
-            <h1>WORD NINJA</h1>
+            <h1>WORD SLICE</h1>
             <h2 id = "logtitle">REGISTER</h2>
             <form id = "loginForm">
                 <div>
@@ -94,7 +108,7 @@
 
         <div class = "popupContainer" id = "errorPop">
             <div class = "popup">
-                <p id = "errorText"></p>
+                <h2 id = "errorText"></h2>
                 <button id = "exitPop" onclick="exitPopup()">EXIT</button>
             </div>
         </div>

@@ -169,7 +169,7 @@ let user = "GUEST";
 let highscore = 0;
 
 let blades = [
-    [false, 0],
+    [true, 0],
     [false, 50]
     ];
 
@@ -180,15 +180,19 @@ let quests = [
 
 let currentBlade = 0;
 
+//menus for hiding/showing
 const mainMenu = document.getElementById("main");
 const shopMenu = document.getElementById("shop");
 const questMenu = document.getElementById("quests");
 const log = document.getElementById("log");
+const scores = document.getElementById("scores");
+const pauseMenu = document.getElementById("pauseMenu");
 const pauseBtn = document.getElementById("pause");
 
 //start or unpause game
 function play(start) {
     mainMenu.style.display = "none";
+    pauseMenu.style.display = "none";
     pauseBtn.style.display = "block";
 
     //if start = true, start from beginning, else unpause
@@ -196,16 +200,8 @@ function play(start) {
 }
 
 function pause() {
-    mainMenu.style.display = "flex";
+    pauseMenu.style.display = "flex";
     pauseBtn.style.display = "none";
-
-    const playbtn = document.getElementById("play");
-    playbtn.setAttribute('onclick',"play(false)");
-    playbtn.innerHTML = 'RESUME';
-
-
-    const mainText = document.getElementById("maintext");
-    mainText.innerHTML = 'PAUSED';
 
     //canvas stuff here
 }
@@ -227,7 +223,7 @@ function shop() {
     shopMenu.style.display = "flex";
 
     const shopmoneytext = document.getElementById("shopm");
-    shopmoneytext.innerHTML = "Money: " + money;
+    shopmoneytext.innerHTML = "MONEY: " + money;
 }
 
 function questM() {
@@ -238,6 +234,10 @@ function questM() {
 function setQuest(questNum) {
     quests[questNum][0] = true;
     money += quests[questNum][1];
+
+    const curQuest = document.getElementById("qs" + questNum);
+    curQuest.innerHTML = 'COMPLETE';
+    curQuest.style.backgroundColor = '#91C7B1';
 }
 
 function loginScreen() {
@@ -245,12 +245,20 @@ function loginScreen() {
     log.style.display = "flex";
 }
 
+function showScores() {
+    mainMenu.style.display = "none";
+    scores.style.display = "flex";
+}
+
 //back to main menu (or pause menu)
 function back() {
+
     mainMenu.style.display = "flex";
     shopMenu.style.display = "none";
     questMenu.style.display = "none";
     log.style.display = "none";
+    scores.style.display = "none";
+    pauseMenu.style.display = "none";
 }
 
 //buy blade
@@ -327,10 +335,11 @@ function setAll() {
         const curQuest = document.getElementById("qs" + i);
         if (quests[i][0] == true) {
             curQuest.innerHTML = 'COMPLETE';
-            curQuest.style.backgroundColor = 'green';
+            curQuest.style.backgroundColor = '#91C7B1';
         } 
         else {
             curQuest.innerHTML = 'INCOMPLETE';
+            curQuest.style.backgroundColor = '#54494B';
         }
     }
 }
@@ -664,7 +673,7 @@ window.onload = async () => {
         }
 
         // turn off scroll
-        // disableScroll()
+        //disableScroll()
 
         /* MATTER JS INITIALIZATION */ 
         gameInit()
