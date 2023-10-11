@@ -1,3 +1,29 @@
+/* #matter-js-canvas {
+    margin-top: -20px;
+} */
+
+#stats {
+    /* margin-top: -250px;
+    transform: translate(30px, 250px); */
+    width:100%;
+}
+
+.stat {
+    display: inline-block;
+    text-align: center;
+}
+
+#canvases {
+    position: relative;
+}
+
+.bottom-layer {
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    z-index: -1;
+}
+
 html {
     height: 100%;
     font-family: 'Iceland';
@@ -172,7 +198,32 @@ button:active {
     color: #54494B;
     border-radius: 25px;
     text-align: center;
+}
 
+input {
+    background-color: #91C7B1;
+    padding: 10px 10px;
+    margin: 8px;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+    color: #F1F7ED;
+    border-radius: 10px;
+    max-width: 100%;
+}
+  
+input:focus {
+    box-shadow: 2px 2px 0px 0px;
+    border-color: #54494B;
+    color: #54494B;
+}
+
+form label {
+    font-size: 20px;
+}
+
+#main button, #pauseMenu button {
+    font-size: xx-large;
 }
 
 input {

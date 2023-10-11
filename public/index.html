@@ -4,6 +4,7 @@
     <title>CS4241 Final Project</title>
     <meta charset="utf-8" name="description" content="Content">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="libraries/matter.js"></script>
     <link rel="stylesheet" type="text/css" href="./css/main.css" media="screen,handheld">
     <link href="https://fonts.googleapis.com/css2?family=Iceland&display=swap" rel="stylesheet">
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
@@ -12,7 +13,7 @@
     <header>
     </header>
 
-    <button class = "pausebtn" id = "pause" onclick = "pause()">PAUSE</button>
+    <!-- <button class = "pausebtn" id = "pause" onclick = "pause()">PAUSE</button> -->
 
     <div class="flex">
         
@@ -112,8 +113,33 @@
             </div>
         </div>
     </div>
-    
+
+    <div id='game'>        
+        <div id="canvases">
+            <canvas id="canvas-blade" class="bottom-layer"></canvas>
+        </div>
+
+        <div id="stats">
+            <div class="stat">
+                <label for="counter">Sliced</label>
+                <p id="counter"></p>
+            </div>
+
+            <div class="stat">
+                <label for="lives">Lives</label>
+                <p id="lives"></p>
+            </div>
+
+            <div class="stat">
+                <label for="money">Money</label>
+                <p id="money"></p>
+            </div>
+
+            <button id="reset">Reset</button>
+            <button id="pause">Pause</button>
+
+        </div>
+    </div>        
     <script src="js/main.js" async="true"></script>
     </body>
 </html>
-  
