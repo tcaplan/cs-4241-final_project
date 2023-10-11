@@ -2,16 +2,26 @@
     margin-top: -20px;
 } */
 
-#stats {
-    /* margin-top: -250px;
-    transform: translate(30px, 250px); */
-    width:100%;
-}
-
 .stat {
     display: inline-block;
     text-align: center;
+    z-index: 1;
+    position: relative;
+    margin-left: 10px;
+    margin-right: 10px;
 }
+
+#stats {
+    background-color: #F1F7ED;
+    border-radius: 5px;
+    width: fit-content;
+    padding: 10px;
+    margin: 10px;
+    z-index: 1;
+    position: relative;
+}
+
+
 
 #game {
     left: 0; 
@@ -29,9 +39,15 @@
     position: absolute;
 }
 
+#canvases {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+}
+
 .bottom-layer {
-    left: 0; 
-    top: 0; 
     width: 100%;
     height: 100%;
     z-index: -1;
@@ -102,7 +118,7 @@ h3 {
     font-size: 25px;
 }
 
-#shop, #log, #quests, .bladebtn, #pause, #scores, #pauseMenu{
+#shop, #log, #quests, .bladebtn, .gameHeader, #scores, #pauseMenu{
     display: none;
 }
 
@@ -190,9 +206,17 @@ button:active {
 
 .pausebtn {
     float: right;
-    margin: 20px;
-    z-index: 3;
-    position: absolute;
+    z-index: 1;
+    position: relative;
+}
+
+.gameHeader {
+    z-index: 1;
+    width: 100%;
+    box-sizing: border-box;
+    color:#54494B;
+    padding: 20px;
+    font-size: larger;
 }
 
 
