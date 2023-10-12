@@ -1,6 +1,6 @@
 
 const express = require('express'),
-      //dotenv = require("dotenv"),
+      dotenv = require("dotenv"),
       app = express(),
       { MongoClient, ObjectId } = require('mongodb'),
       cookie  = require( 'cookie-session' ),
@@ -8,14 +8,14 @@ const express = require('express'),
       fs   = require( 'fs' )
       
 // allows use of environment variables
-//dotenv.config()
+dotenv.config()
 
 // public directory
 app.use(express.static('./public'))
 app.use(express.json())
 
 
-const url = `mongodb+srv://${process.env.USER}:${process.env.PASS}@cluster0.kxz0njx.mongodb.net/?retryWrites=true&w=majority`
+const url = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.kxz0njx.mongodb.net/?retryWrites=true&w=majority`
 
 const client = new MongoClient( url )
 
@@ -228,4 +228,4 @@ app.post('/highScore', async (req, res) => {
 
 
 // set up the server
-app.listen(`${process.env.PORT}`)
+app.listen(3000 || `${process.env.PORT}`)
