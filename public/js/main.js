@@ -167,8 +167,8 @@ collisionDetected = event => {
                 lives--
                 document.getElementById('lives').innerHTML = lives
             }
-            World.remove(engine.world, projectile)
             projectiles.filter(p => p.label !== projectile.label)
+            World.remove(engine.world, projectile)
         }
     }
     if (lives === 0) {
@@ -233,6 +233,7 @@ function gameOver() {
     mousePressed = false;
     slicing = false;
     isDown = false;
+    paused = true;
     totalmoney += money;
     gameReset(true);
     gameEnd.style.display = "flex";
@@ -666,6 +667,7 @@ function gameReset(isPaused) {
     document.getElementById('lives').innerHTML = lives
     document.getElementById('money').innerHTML = money
 
+    projectiles = [];
     World.remove(engine.world, Composite.allBodies(engine.world))
 
     // add the floor to the world
@@ -679,7 +681,9 @@ function gameReset(isPaused) {
     currentBlade2 = getCurrentBlade()
     currentBlade2.enable()
 
-    update()
+    if (isPaused === false) {
+        update();
+    }
 }
 
 window.onload = async () => {
