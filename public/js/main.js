@@ -971,6 +971,18 @@ window.onload = async () => {
 
     addQuest('Login', 'log in to play.', 20)
     addQuest('Slice Bread', 'its the greatest thing.', 100)
+
+    const curUser = await fetch('/checkLog', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    });
+    const name = await curUser.json();
+    if (name !== null) {
+        user = name.username;
+        setAll();
+    }
     
     bladeCanvas = document.getElementById('canvas-blade')
     bladeCTX = bladeCanvas.getContext('2d')
@@ -1048,6 +1060,7 @@ function switchLogRegister() {
         event.preventDefault();
         const username = document.querySelector('#username').value;
         const password = document.querySelector('#password').value;
+        form.reset();
         register(username, password);
       };
     }
@@ -1058,6 +1071,7 @@ function switchLogRegister() {
         event.preventDefault();
         const username = document.querySelector('#username').value;
         const password = document.querySelector('#password').value;
+        form.reset();
         login(username, password);
       };
     }
@@ -1150,12 +1164,35 @@ async function register(u, p) {
 async function logout() {
     //change login button to logout
     const logInOut = document.getElementById("log-btn");
+    logoutSession();
     setAllGuest();
     logInOut.innerHTML = "LOGIN";
     logInOut.onclick = (event) => {
         event.preventDefault();
         loginScreen();
     };
+}
+
+async function logoutSession() {
+    try {
+        const response = await fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ user })
+        });
+
+        const logout = await response.json();
+        if (logout.success) {
+            console.log("User logged out successfully");
+        } else {
+            console.error("Failed to log out:", logout.message);
+        }
+    } catch (error) {
+        console.error('Error logging out:', error);
+    }
+    
 }
 
 function error(text) {

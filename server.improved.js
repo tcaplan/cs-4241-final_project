@@ -375,5 +375,32 @@ app.get('/quests', async (req, res) => {
     }
 });
 
+
+app.get('/checkLog', async (req, res) => {
+    try {
+        if (req.session.login === true) {
+            // If user is logged in, send username as a JSON response
+            res.json({ username: req.session.username });
+        } else {
+            // If user isn't logged in, return null
+            res.json(null);
+        }
+    } catch (error) {
+        console.error('Error checking login', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.post('/logout', async (req, res) => {
+    try {
+        req.session.login = false;
+        console.log("User logged out");
+        res.json({ success: true, message: 'User logged out' });
+    } catch (error) {
+        console.error('Error during logout:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
 // set up the server
 app.listen(3000 || `${process.env.PORT}`)
