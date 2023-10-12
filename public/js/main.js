@@ -63,10 +63,8 @@ bladeMouseMoveText = (text, font, color='random') => {
         startX=mouseX;
         startY=mouseY;
 
-        //bladeCTX.globalCompositeOperation = "lighter";
         bladeCTX.fillStyle = "rgba(145, 199, 177, 0.2)";
         bladeCTX.fillRect(0, 0, bladeCanvas.width, bladeCanvas.height);
-        //bladeCTX.globalCompositeOperation = "color";
     
     })
 }
@@ -742,7 +740,7 @@ window.onload = async () => {
         // map words to images
         word_array = json.words.trim().split('\n');
         for(i = 0; i < word_array.length; i++) {
-            words[word_array[i]] = { 'alive': generateWordImage(word_array[i], randomColor()),
+            words[word_array[i]] = { 'alive': generateWordImage(word_array[i], rainbowColor()),
                             'sliced': generateWordImage(word_array[i], SLICED_COLOR) }
         }
 
