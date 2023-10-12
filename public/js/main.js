@@ -912,7 +912,8 @@ async function login(u, p) {
             console.log("Login successful.");
             user = u;
             setAll();
-            setQuest(0)
+            setQuest(0);
+            back();
         } else {
             console.log("Login failed:", loginAttempt.message);
             error("Incorrect Username and Password.");
@@ -933,15 +934,6 @@ async function register(u, p) {
             error("Username taken!");
             return;
         }
-    //server stuff here
-
-    if ((u === '') || (p === '')) {
-        error("Username and Password are required fields!");
-    }
-    if (u == 'GUEST' || u == 'guest') {
-        error("Username taken!");
-    }
-
 
         const response = await fetch('/register', {
             method: 'POST',
@@ -959,6 +951,7 @@ async function register(u, p) {
             user = u;
             setAll();
             setQuest(0) // login quest
+            back();
         } else {
             if (response.status === 400) {
                 error("Username taken!");
@@ -984,6 +977,7 @@ function exitPopup() {
   }
 
 async function updateHighScore(score) {
+    if (user === "GUEST") { return; }
     try {
         const response = await fetch('/highScore', {
             method: 'POST',
@@ -1005,6 +999,7 @@ async function updateHighScore(score) {
 }
 
 async function updateCurrency(currency) {
+    if (user === "GUEST") { return; }
     try {
         const response = await fetch('/currency', {
             method: 'POST',
