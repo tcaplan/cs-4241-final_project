@@ -144,7 +144,7 @@ sliced = event => {
                     gameOver();
                 } else {
                     score++
-                    if(body.label === 'bread\r') {
+                    if((body.label === 'bread\r') || (body.label === 'bread')){
                         setQuest(1) // bread quest
                     }
                     body.parts[0].render.sprite.texture = words[body.label].sliced
@@ -196,10 +196,7 @@ let blades = [
     [false, 100]
     ];
 
-let quests = [
-    [false, 20],
-    [false, 50]
-    ];
+let quests = [];
 
 let currentBlade = 0;
 
