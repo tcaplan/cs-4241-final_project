@@ -144,9 +144,6 @@ sliced = event => {
                     gameOver();
                 } else {
                     score++
-                    if(body.label === 'bread\r') {
-                        setQuest(1) // bread quest
-                    }
                     body.parts[0].render.sprite.texture = words[body.label].sliced
                     document.getElementById('counter').innerHTML = score 
                     document.getElementById('counter2').innerHTML = score                   
@@ -273,14 +270,12 @@ function questM() {
 }
 
 function setQuest(questNum) {
-    if(!quests[questNum][0]) {
-        quests[questNum][0] = true;
-        totalmoney += quests[questNum][1];
-    
-        const curQuest = document.getElementById("qs" + questNum);
-        curQuest.innerHTML = 'COMPLETE';
-        curQuest.style.backgroundColor = '#91C7B1';
-    }
+    quests[questNum][0] = true;
+    money += quests[questNum][1];
+
+    const curQuest = document.getElementById("qs" + questNum);
+    curQuest.innerHTML = 'COMPLETE';
+    curQuest.style.backgroundColor = '#91C7B1';
 }
 
 function loginScreen() {
@@ -525,7 +520,7 @@ function generateWordImage(word, color) {
     imageCanvas.height = 30
     ctx2.font = "30px Iceland"
     ctx2.fillStyle = color
-    ctx2.fillText(word, 0, 25)
+    ctx2.fillText(word, 0, 25, 150)
 
     return imageCanvas.toDataURL('image/png')
 }
@@ -785,9 +780,6 @@ function gameReset(isPaused) {
 window.onload = async () => {
 
     switchLogRegister();
-
-    addQuest('Login', 'log in to play.', 20)
-    addQuest('Slice Bread', 'its the greatest thing.', 100)
     
     bladeCanvas = document.getElementById('canvas-blade')
     bladeCTX = bladeCanvas.getContext('2d')
@@ -912,7 +904,7 @@ async function login(u, p) {
             console.log("Login successful.");
             user = u;
             setAll();
-            setQuest(0)
+            back();
         } else {
             console.log("Login failed:", loginAttempt.message);
             error("Incorrect Username and Password.");
@@ -933,15 +925,6 @@ async function register(u, p) {
             error("Username taken!");
             return;
         }
-    //server stuff here
-
-    if ((u === '') || (p === '')) {
-        error("Username and Password are required fields!");
-    }
-    if (u == 'GUEST' || u == 'guest') {
-        error("Username taken!");
-    }
-
 
         const response = await fetch('/register', {
             method: 'POST',
@@ -958,7 +941,7 @@ async function register(u, p) {
             console.log("Registration successful.");
             user = u;
             setAll();
-            setQuest(0) // login quest
+            back();
         } else {
             if (response.status === 400) {
                 error("Username taken!");
@@ -984,6 +967,7 @@ function exitPopup() {
   }
 
 async function updateHighScore(score) {
+    if (user === "GUEST") { return; }
     try {
         const response = await fetch('/highScore', {
             method: 'POST',
@@ -1005,6 +989,7 @@ async function updateHighScore(score) {
 }
 
 async function updateCurrency(currency) {
+    if (user === "GUEST") { return; }
     try {
         const response = await fetch('/currency', {
             method: 'POST',
@@ -1023,35 +1008,4 @@ async function updateCurrency(currency) {
     } catch (error) {
         console.error('Error updating currency:', error);
     }
-}
-
-function addQuest(name, description, reward, func=()=>{}) {
-    questList = document.getElementById('quest-list')
-    wrapper = document.createElement('div')
-    wrapper.classList.add('listitem')
-    
-    wrapper2 = document.createElement('div')
-    wrapper2.classList.add('menu-txt')
-
-    title = document.createElement('h3')
-    title.innerHTML = name
-
-    subtext = document.createElement('p')
-    subtext.innerHTML = description + ' $' + reward 
-
-    wrapper2.appendChild(title)
-    wrapper2.appendChild(subtext)
-
-    display = document.createElement('div')
-    display.classList.add('quest-status')
-    display.id = 'qs' + quests.length
-    display.innerHTML= 'INCOMPLETE'
-    quests.push([false, reward])
-
-    wrapper.appendChild(wrapper2)
-    wrapper.appendChild(display)
-
-    questList.append(wrapper)
-
-    func()
 }
