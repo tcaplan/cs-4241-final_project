@@ -238,7 +238,19 @@ function gameOver() {
     slicing = false;
     isDown = false;
     paused = true;
+  
     totalmoney += money;
+    const shopmoneytext = document.getElementById("shopm");
+    shopmoneytext.innerHTML = "MONEY: " + totalmoney;
+    updateCurrency(totalmoney);
+    
+    if(score > highscore) {
+      const highScoreElement = document.getElementById("highscore");
+        highscore = score;
+        highScoreElement.innerHTML = `High Score: ${highscore}`; 
+        updateHighScore(highscore);
+    }
+  
     gameReset(true);
     gameEnd.style.display = "flex";
     gameHeader.style.display = "none";
@@ -310,6 +322,7 @@ function buy(bladeNum) {
 
         const shopmoneytext = document.getElementById("shopm");
         shopmoneytext.innerHTML = "Money: " + totalmoney;
+        updateCurrency(totalmoney)
     }
 }
 
@@ -329,11 +342,45 @@ function blade(bladeNum) {
 }
 
 //set user specific text after login
-function setAll() {
+async function setAll() {
     const usertext = document.getElementById("user");
     usertext.innerHTML = user;
+    
+    // Fetch the high score for the current user
+    try {
+        const response = await fetch('/highScore', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+        const data = await response.json();
+        const highScoreElement = document.getElementById("highscore");
+        console.log("in here5");
+        
+        if (data.score !== undefined) {
+            // Update the high score element with the retrieved high score
+            console.log("Score: " + data.score);
+            highscore = data.score;
+            highScoreElement.innerHTML = `High Score: ${highscore}`;
+        } 
+      
+        const currencyResponse = await fetch('/currency', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+        const currencyData = await currencyResponse.json();
 
-    for (let i = 0; i < blades.length; i++) {
+        if (currencyData.currency !== undefined) {
+            totalmoney = currencyData.currency;
+            const shopmoneytext = document.getElementById("shopm");
+            shopmoneytext.innerHTML = "MONEY: " + totalmoney;
+            // You can update the UI with the totalmoney value if needed
+        }
+/*
+        for (let i = 0; i < blades.length; i++) {
         const curBlade = document.getElementById("shopbtn" + i);
         const useBtn = document.getElementById("bladebtn" + i);
         if (blades[i][0] == true) {
@@ -369,6 +416,12 @@ function setAll() {
             curQuest.innerHTML = 'INCOMPLETE';
             curQuest.style.backgroundColor = '#54494B';
         }
+    }
+    */
+
+    } catch (error) {
+        console.error('Error in SetAll', error);
+        // Handle the error as needed
     }
 }
 
@@ -825,29 +878,78 @@ function switchLogRegister() {
 }
 
 async function login(u, p) {
-    //server stuff here
+    try {
+        if (u === '' || p === '') {
+            error("Username and Password are required fields!");
+            return;
+        }
 
-    if ((u === '') || (p === '')) {
-        error("Username and Password are required fields!");
-    }
-    if (u == 'GUEST' || u == 'guest') {
-        error("Username taken!");
-    }
+        if (u.toLowerCase() === 'guest') {
+            error("Username taken!");
+            return;
+        }
 
-    //setAll();
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: u, password: p })
+        });
+
+        const loginAttempt = await response.json();
+        console.log(loginAttempt);
+
+        if (loginAttempt.success) {
+            console.log("Login successful.");
+            user = u;
+            setAll();
+        } else {
+            console.log("Login failed:", loginAttempt.message);
+            error("Incorrect Username and Password.");
+        }
+    } catch (error) {
+        console.error('Error in login:', error.message);
+    }
 }
 
 async function register(u, p) {
-    //server stuff here
+    try {
+        if (u === '' || p === '') {
+            error("Username and Password are required fields!");
+            return; 
+        }
 
-    if ((u === '') || (p === '')) {
-        error("Username and Password are required fields!");
-    }
-    if (u == 'GUEST' || u == 'guest') {
-        error("Username taken!");
-    }
+        if (u.toLowerCase() === 'guest') {
+            error("Username taken!");
+            return;
+        }
 
-    setAll();
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: u, password: p })
+        });
+
+        const registrationAttempt = await response.json();
+        console.log(registrationAttempt);
+
+        if (registrationAttempt.success) {
+            console.log("Registration successful.");
+            user = u;
+            setAll();
+        } else {
+            if (response.status === 400) {
+                error("Username taken!");
+            } else {
+                error("Registration failed.")
+            }
+        }
+    } catch (error) {
+        console.error('Error in registration:', error.message);
+    }
 }
 
 function error(text) {
@@ -861,3 +963,45 @@ function exitPopup() {
     const popup = document.querySelector( '#errorPop' );
     popup.style.display = "none";
   }
+
+async function updateHighScore(score) {
+    try {
+        const response = await fetch('/highScore', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ score })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            console.log("High score updated successfully");
+        } else {
+            console.error("Failed to update high score:", data.message);
+        }
+    } catch (error) {
+        console.error('Error updating high score:', error);
+    }
+}
+
+async function updateCurrency(currency) {
+    try {
+        const response = await fetch('/currency', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ currency })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            console.log("Currency updated successfully");
+        } else {
+            console.error("Failed to update currency:", data.message);
+        }
+    } catch (error) {
+        console.error('Error updating currency:', error);
+    }
+}
