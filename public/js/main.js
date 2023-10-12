@@ -31,6 +31,7 @@ var mouseConstraint
 
 words = {}
 projectiles = []
+aliveProjectiles = {}
 
 // global variables
 mousePressed = false
@@ -56,14 +57,16 @@ bladeMouseMoveText = (text, font, color='random') => {
         mouseX=parseInt(event.clientX-offsetX);
         mouseY=parseInt(event.clientY-offsetY);
         
-        bladeCTX.fillStyle = color === 'random' ? randomColor() : color
+        bladeCTX.fillStyle = color === 'random' ? rainbowColor() : color
         bladeCTX.font = font
         bladeCTX.fillText(text, startX, startY)
         startX=mouseX;
         startY=mouseY;
 
+        //bladeCTX.globalCompositeOperation = "lighter";
         bladeCTX.fillStyle = "rgba(145, 199, 177, 0.2)";
         bladeCTX.fillRect(0, 0, bladeCanvas.width, bladeCanvas.height);
+        //bladeCTX.globalCompositeOperation = "color";
     
     })
 }
@@ -163,12 +166,15 @@ collisionDetected = event => {
         if(pair.bodyA.label === 'the floor' || pair.bodyB.label === 'the floor') {
             projectile = pair.bodyA.label === 'the floor' ? pair.bodyB : pair.bodyA
             // check if a bomb collided with the floor
-            if(projectile.label !== 'bomb' && Body.getVelocity(projectile).y > 0 && lives > 0) {
-                lives--
-                document.getElementById('lives').innerHTML = lives
+            if(projectiles.filter(p => p.label === projectile.label).length > 0) {
+                if(projectile.label !== 'bomb' /* && Body.getVelocity(projectile).y > 0 */ && lives > 0) {
+                    lives--
+                    document.getElementById('lives').innerHTML = lives
+                }
+
+                projectiles = projectiles.filter(p => p.label !== projectile.label)
+                World.remove(engine.world, projectile)
             }
-            World.remove(engine.world, projectile)
-            projectiles.filter(p => p.label !== projectile.label)
         }
     }
     if (lives === 0) {
@@ -218,7 +224,7 @@ function playButton(start) {
     if (start === true) {
         gameReset(false)
     }
-    play(projectiles);
+    play();
 }
 
 function pauseButton() {
@@ -233,6 +239,7 @@ function gameOver() {
     mousePressed = false;
     slicing = false;
     isDown = false;
+    paused = true;
     totalmoney += money;
     gameReset(true);
     gameEnd.style.display = "flex";
@@ -383,7 +390,16 @@ function disableScroll() {
  * Makes all Matter-JS Bodies passed in static
  */
 function pause(list) {
+    i = 0
     list.forEach(element => {
+        if(element.isStatic === false) {
+            v = Body.getVelocity(element)
+            aliveProjectiles[i++] = {
+                object: element,
+                v_x: v.x,
+                v_y: v.y
+            }
+        }
         element.isStatic = true
     });
 }
@@ -391,20 +407,44 @@ function pause(list) {
 /**
  * Makes all Matter-JS Bodies passed in dynamic
  */
-function play(list) {
-    list.forEach(element => {
-        element.isStatic = false
+function play() {
+    paused = false
+    Object.keys(aliveProjectiles).forEach(key => {
+        p = aliveProjectiles[key].object
+        Body.setVelocity(p, {x: aliveProjectiles[key].v_x, y: aliveProjectiles[key].v_y})
+        p.isStatic = false
     });
+    aliveProjectiles = {}
     update()
 }
 
 function randomColor() {
-    switch (Math.floor(Math.random() * 5)) {
-        case 0: return 'blue'
-        case 1: return 'purple'
-        case 2: return 'orange'
-        case 3: return 'red'
-        case 4: return 'cyan'
+    switch (Math.floor(Math.random() * 4)) {
+        case 0: return '#F1F7ED'
+        case 1: return '#54494B'
+        case 2: return '#B33951'
+        case 3: return '#E3D081'
+        default: 
+            return 'black'        
+    }
+}
+
+rainbownext = 6;
+function rainbowColor() {
+    if (rainbownext === 6) {
+        rainbownext = 0;
+    }
+    else {
+        rainbownext++;
+    }
+    switch (rainbownext) {
+        case 0: return '#fc1703'
+        case 1: return '#fc9803'
+        case 2: return '#fce803'
+        case 3: return '#6bfc03'
+        case 4: return '#03ecfc'
+        case 5: return '#6203fc'
+        case 6: return '#ba03fc'
         default: 
             return 'black'        
     }
@@ -666,6 +706,8 @@ function gameReset(isPaused) {
     document.getElementById('lives').innerHTML = lives
     document.getElementById('money').innerHTML = money
 
+    projectiles = [];
+    aliveProjectiles = {}
     World.remove(engine.world, Composite.allBodies(engine.world))
 
     // add the floor to the world
@@ -679,7 +721,9 @@ function gameReset(isPaused) {
     currentBlade2 = getCurrentBlade()
     currentBlade2.enable()
 
-    update()
+    if (isPaused === false) {
+        update();
+    }
 }
 
 window.onload = async () => {
