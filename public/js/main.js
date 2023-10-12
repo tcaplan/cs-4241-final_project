@@ -288,6 +288,7 @@ function loginScreen() {
 async function showScores() {
     mainMenu.style.display = "none";
     scores.style.display = "flex";
+    let topten = [];
     try {
         const response = await fetch('/top10', {
             method: 'GET',
@@ -303,12 +304,36 @@ async function showScores() {
             // Iterate through the top 10 scores and display them
             data.forEach((score, index) => {
                 console.log(`${index + 1}. ${score.username}: ${score.score}`);
+                topten.push([score.username, score.score]);
             });
         } else {
             console.error("Failed to retrieve top 10 scores.");
         }
     } catch (error) {
         console.error('Error while fetching top 10 scores:', error);
+    }
+
+    const table = document.querySelector("#data");
+    table.innerHTML = '';
+
+    for (let i = 0; i < topten.length; i++) {
+        const newThread = document.createElement("tr");
+        table.appendChild(newThread);
+
+        const placeText = document.createElement("td");
+        placeText.innerText = i + 1;
+        placeText.id = 'place' + i;
+        newThread.appendChild(placeText);
+    
+        const userText = document.createElement("td");
+        userText.innerText = topten[i][0];
+        userText.id = 'user' + i;
+        newThread.appendChild(userText);
+
+        const scoreText = document.createElement("td");
+        scoreText.innerText = topten[i][1];
+        scoreText.id = 'score' + i;
+        newThread.appendChild(scoreText);
     }
 }
 

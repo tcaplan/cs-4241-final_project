@@ -22,12 +22,16 @@ const client = new MongoClient( url )
 let logins = null
 let highScores = null
 let currencies = null
+let currentBlades = null
+let ownedBlades = null
 
 async function run() {
   await client.connect()
   logins = await client.db("database").collection("logins")
   highScores = await client.db("database").collection("highScores")
   currencies = await client.db("database").collection("currencies")
+  currentBlades = await client.db("database").collection("currentBlades")
+  ownedBlades = await client.db("database").collection("ownedBlades")
 }
 
 run()
