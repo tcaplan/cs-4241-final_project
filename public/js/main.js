@@ -19,7 +19,7 @@ score = 0
 paused = false
 
 MARGIN = 100
-WIDTH = 0
+WIDTH = k
 HEIGHT = 0
 SLICED_COLOR = 'grey'
 MAX_SLICES = 4
