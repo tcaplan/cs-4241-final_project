@@ -273,6 +273,7 @@ function setQuest(questNum) {
     if(!quests[questNum][0]) {
         quests[questNum][0] = true;
         totalmoney += quests[questNum][1];
+        updateQuest(questNum);
     
         const curQuest = document.getElementById("qs" + questNum);
         curQuest.innerHTML = 'COMPLETE';
@@ -312,7 +313,7 @@ async function showScores() {
     } catch (error) {
         console.error('Error while fetching top 10 scores:', error);
     }
-
+  
     const table = document.querySelector("#data");
     table.innerHTML = '';
 
@@ -324,7 +325,7 @@ async function showScores() {
         placeText.innerText = i + 1;
         placeText.id = 'place' + i;
         newThread.appendChild(placeText);
-    
+
         const userText = document.createElement("td");
         userText.innerText = topten[i][0];
         userText.id = 'user' + i;
@@ -431,11 +432,9 @@ async function setAll() {
         });
         const data = await response.json();
         const highScoreElement = document.getElementById("highscore");
-        console.log("in here5");
         
         if (data.score !== undefined) {
             // Update the high score element with the retrieved high score
-            console.log("Score: " + data.score);
             highscore = data.score;
             highScoreElement.innerHTML = `High Score: ${highscore}`;
         } 
@@ -511,7 +510,25 @@ async function setAll() {
             curBlade.disabled = false;
         }
     }
-
+      
+    //call get quests and update quests
+    
+    // Fetch the list of quests for the current user
+    const questsResponse = await fetch('/quests', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }});
+    const questsData = await questsResponse.json();
+    const questsList = questsData.quests;
+      
+    questsList.forEach(index => {
+          if (index >= 0 && index < quests.length) {
+              quests[index][0] = true;
+          }
+    });
+      
+    
     for (let i = 0; i < quests.length; i++) {
         const curQuest = document.getElementById("qs" + i);
         if (quests[i][0] == true) {
@@ -530,6 +547,71 @@ async function setAll() {
         // Handle the error as needed
     }
 }
+
+async function setAllGuest() {
+    const usertext = document.getElementById("user");
+    user = "GUEST"
+    usertext.innerHTML = user;
+    
+    // Reset blades and currentBlade to default before loading info
+    blades = [
+    [true, 0],
+    [false, 20],
+    [false, 40],
+    [false, 60],
+    [false, 80],
+    [false, 100]
+    ];
+  
+    
+  
+    const highScoreElement = document.getElementById("highscore");
+    highscore = 0;
+    highScoreElement.innerHTML = `High Score: ${highscore}`;
+    
+    const shopmoneytext = document.getElementById("shopm");
+    totalmoney = 0;
+    shopmoneytext.innerHTML = "MONEY: " + totalmoney;  
+    
+    currentBlade = 0;
+    
+  
+    for (let i = 0; i < blades.length; i++) {
+        const curBlade = document.getElementById("shopbtn" + i);
+        const useBtn = document.getElementById("bladebtn" + i);
+        
+        curBlade.style.display = "block";
+        if (blades[i][0] == true) {
+            curBlade.style.display = "none";
+
+            useBtn.style.display = "block";
+            
+            if (currentBlade == i) {
+                useBtn.innerHTML = 'CURRENT';
+                useBtn.disabled = true;
+                useBtn.style.pointerEvents = "none"; 
+            }
+            else {
+                useBtn.innerHTML = 'USE';
+                useBtn.disabled = false;
+            }
+        } 
+        else {
+            useBtn.style.display = "none";
+
+            curBlade.innerHTML = 'BUY $' + blades[i][1];
+            curBlade.disabled = false;
+        }
+    } 
+    
+    for (let i = 0; i < quests.length; i++) {
+        const curQuest = document.getElementById("qs" + i);
+          curQuest.innerHTML = 'INCOMPLETE';
+          curQuest.style.backgroundColor = '#54494B';
+        }
+}
+
+        
 
 // TODO: doesnt work
 function disableScroll() {
@@ -1066,10 +1148,9 @@ async function register(u, p) {
 }
 
 async function logout() {
-    //server stuff here
-
     //change login button to logout
     const logInOut = document.getElementById("log-btn");
+    setAllGuest();
     logInOut.innerHTML = "LOGIN";
     logInOut.onclick = (event) => {
         event.preventDefault();
@@ -1174,6 +1255,28 @@ async function updateCurrentBlade(bladeNumber) {
         }
     } catch (error) {
         console.error('Error updating current blade:', error);
+    }
+}
+
+async function updateQuest(questNumber) {
+    if (user === "GUEST") { return; }
+    try {
+        const response = await fetch('/quests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ quest: questNumber })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            console.log("Quest updated successfully");
+        } else {
+            console.error("Failed to update quest:", data.message);
+        }
+    } catch (error) {
+        console.error('Error updating quest:', error);
     }
 }
 

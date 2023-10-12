@@ -22,16 +22,18 @@ const client = new MongoClient( url )
 let logins = null
 let highScores = null
 let currencies = null
-let currentBlades = null
 let ownedBlades = null
+let currentBlades = null
+let quests = null
 
 async function run() {
   await client.connect()
   logins = await client.db("database").collection("logins")
   highScores = await client.db("database").collection("highScores")
   currencies = await client.db("database").collection("currencies")
-  currentBlades = await client.db("database").collection("currentBlades")
   ownedBlades = await client.db("database").collection("ownedBlades")
+  currentBlades = await client.db("database").collection("currentBlades")
+  quests = await client.db("database").collection("quests")
 }
 
 run()
@@ -139,9 +141,6 @@ app.get('/currency', async (req, res) => {
 app.post('/currency', async (req, res) => {
     try {
         const currency = req.body.currency;
-        console.log("Currency: ");
-        console.log(currency);
-        console.log(req.body);
         const username = req.session.username;
 
         // Check if the username already exists in the currency table
@@ -173,18 +172,13 @@ app.post('/currency', async (req, res) => {
 
 
 app.get('/highScore', async (req, res) => {
-  console.log("in here")
     try {
         const username = req.session.username;
-        console.log("Username: ");
-        console.log(req.session.username);
 
         // Query the highScore table to find the high score associated with the specified username
         const highScoreData = await highScores.findOne({ username });
-        console.log(highScoreData);
 
         if (highScoreData) {
-            console.log("In here 2");
             // If high score data is found, send it as a JSON response
             res.json({ score: highScoreData.score });
         } else {
@@ -325,7 +319,6 @@ app.get('/currentBlades', async (req, res) => {
 });
 
 app.get('/top10', async (req, res) => {
-  console.log("in get top10")
   try {
     // Query the highScore table to find the top ten highest scores
     const top10Scores = await highScores.find().sort({ score: -1 }).limit(10).toArray();
@@ -341,6 +334,45 @@ app.get('/top10', async (req, res) => {
     console.error('Error retrieving top 10 scores:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
+});
+
+
+app.post('/quests', async (req, res) => {
+    try {
+        const quest = req.body.quest;
+        const username = req.session.username;
+
+        // Create a new entry in the quests table with the specified username and quest
+        const newUser = {
+            username,
+            quest
+        };
+
+        await quests.insertOne(newUser);
+
+        console.log("User added with quests");
+        res.json({ success: true, message: 'User added with quests' });
+    } catch (error) {
+        console.error('Error during quest update:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.get('/quests', async (req, res) => {
+    try {
+        const username = req.session.username;
+
+        // Query the quests table to find all quests associated with the specified username
+        const questsData = await quests.find({ username }).toArray();
+
+        // Extract the list of quest numbers from the data
+        const questsList = questsData.map((entry) => entry.quest);
+
+        res.json({ success: true, quests: questsList });
+    } catch (error) {
+        console.error('Error retrieving quests:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
 });
 
 // set up the server
