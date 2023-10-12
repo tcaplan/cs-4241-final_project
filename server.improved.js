@@ -98,6 +98,9 @@ app.post('/register', async (req, res) => {
             };
 
             await logins.insertOne(newUser);
+          
+            req.session.login = true;
+            req.session.username = username;
 
             console.log("Registration successful");
             res.json({ success: true, message: 'Registration successful' });
@@ -225,7 +228,6 @@ app.post('/highScore', async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
-
 
 // set up the server
 app.listen(3000 || `${process.env.PORT}`)
