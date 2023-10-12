@@ -347,6 +347,14 @@ function blade(bladeNum) {
 async function setAll() {
     const usertext = document.getElementById("user");
     usertext.innerHTML = user;
+
+    //change login button to logout
+    const logInOut = document.getElementById("log-btn");
+    logInOut.innerHTML = "LOGOUT";
+    logInOut.onclick = (event) => {
+        event.preventDefault();
+        logout();
+    };
     
     // Fetch the high score for the current user
     try {
@@ -381,7 +389,7 @@ async function setAll() {
             shopmoneytext.innerHTML = "MONEY: " + totalmoney;
             // You can update the UI with the totalmoney value if needed
         }
-/*
+
         for (let i = 0; i < blades.length; i++) {
         const curBlade = document.getElementById("shopbtn" + i);
         const useBtn = document.getElementById("bladebtn" + i);
@@ -419,7 +427,7 @@ async function setAll() {
             curQuest.style.backgroundColor = '#54494B';
         }
     }
-    */
+    
 
     } catch (error) {
         console.error('Error in SetAll', error);
@@ -959,6 +967,18 @@ async function register(u, p) {
     } catch (error) {
         console.error('Error in registration:', error.message);
     }
+}
+
+async function logout() {
+    //server stuff here
+
+    //change login button to logout
+    const logInOut = document.getElementById("log-btn");
+    logInOut.innerHTML = "LOGIN";
+    logInOut.onclick = (event) => {
+        event.preventDefault();
+        loginScreen();
+    };
 }
 
 function error(text) {
