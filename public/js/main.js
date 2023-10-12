@@ -408,6 +408,7 @@ function pause(list) {
  * Makes all Matter-JS Bodies passed in dynamic
  */
 function play() {
+    paused = false
     Object.keys(aliveProjectiles).forEach(key => {
         p = aliveProjectiles[key].object
         Body.setVelocity(p, {x: aliveProjectiles[key].v_x, y: aliveProjectiles[key].v_y})
