@@ -343,5 +343,21 @@ app.get('/top10', async (req, res) => {
   }
 });
 
+
+app.get('/checkLog', async (req, res) => {
+    try {
+        if (req.session.login === true) {
+            // If user is logged in, send username as a JSON response
+            res.json({ username: req.session.username });
+        } else {
+            // If user isn't logged in, return null
+            res.json(null);
+        }
+    } catch (error) {
+        console.error('Error checking login', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
 // set up the server
 app.listen(3000 || `${process.env.PORT}`)

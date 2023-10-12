@@ -889,6 +889,18 @@ window.onload = async () => {
 
     addQuest('Login', 'log in to play.', 20)
     addQuest('Slice Bread', 'its the greatest thing.', 100)
+
+    const curUser = await fetch('/checkLog', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    });
+    const name = await curUser.json();
+    if (name !== null) {
+        user = name.username;
+        setAll();
+    }
     
     bladeCanvas = document.getElementById('canvas-blade')
     bladeCTX = bladeCanvas.getContext('2d')
