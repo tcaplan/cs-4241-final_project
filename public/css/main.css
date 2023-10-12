@@ -2,28 +2,55 @@
     margin-top: -20px;
 } */
 
-#stats {
-    /* margin-top: -250px;
-    transform: translate(30px, 250px); */
-    width:100%;
-}
-
 .stat {
     display: inline-block;
     text-align: center;
+    z-index: 1;
+    position: relative;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#stats {
+    background-color: #F1F7ED;
+    border-radius: 5px;
+    width: fit-content;
+    padding: 10px;
+    margin: 10px;
+    z-index: 1;
+    position: relative;
+}
+
+
+
+#game {
+    left: 0; 
+    top: 0; 
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+#matter-js-canvas {
+    left: 0; 
+    top: 0; 
+    width: 100%;
+    height: 100%;
+    position: absolute;
 }
 
 #canvases {
-    left: 0; 
-    top: 0; 
-    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
 }
 
 .bottom-layer {
-    position: absolute; 
-    left: 0; 
-    top: 0; 
-    z-index: -2;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
 }
 
 html {
@@ -39,7 +66,6 @@ body {
     margin: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;
     position: absolute;
 }
 
@@ -54,6 +80,7 @@ body {
 }
   
 .flex .box {
+    z-index: 1;
     width: 500px;
     max-width: 80%;
     background-color: #F1F7ED;
@@ -91,7 +118,7 @@ h3 {
     font-size: 25px;
 }
 
-#shop, #log, #quests, .bladebtn, #pause, #scores, #pauseMenu{
+#shop, #log, #quests, .bladebtn, .gameHeader, #scores, #pauseMenu, #gameEnd{
     display: none;
 }
 
@@ -179,7 +206,21 @@ button:active {
 
 .pausebtn {
     float: right;
-    margin: 20px;
+    z-index: 1;
+    position: relative;
+}
+
+.gameHeader {
+    z-index: 1;
+    width: 100%;
+    box-sizing: border-box;
+    color:#54494B;
+    padding: 20px;
+    font-size: larger;
+}
+
+#gameEnd {
+    font-size: x-large;
 }
 
 
@@ -192,6 +233,7 @@ button:active {
     right: 0;
     bottom: 0;
     left: 0;
+    z-index: 2;
     background: rgba(0,0,0,0.6);
   }
 
@@ -252,6 +294,6 @@ form label {
     font-size: 20px;
 }
 
-#main button, #pauseMenu button {
+#main button, #pauseMenu button, #gameEnd button{
     font-size: xx-large;
 }

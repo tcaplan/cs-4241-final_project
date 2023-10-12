@@ -13,7 +13,27 @@
     <header>
     </header>
 
-    <!-- <button class = "pausebtn" id = "pause" onclick = "pause()">PAUSE</button> -->
+    <div class = "gameHeader" id = "gameHeader"> 
+        <button class = "pausebtn" id = "pause" onclick = "pauseButton()">PAUSE</button>
+        
+        <div id="stats">
+            <div class="stat">
+                <label for="counter">Sliced</label>
+                <p id="counter"></p>
+            </div>
+
+            <div class="stat">
+                <label for="lives">Lives</label>
+                <p id="lives"></p>
+            </div>
+
+            <div class="stat">
+                <label for="money">Money</label>
+                <p id="money"></p>
+            </div>
+
+        </div>
+    </div>
 
     <div class="flex">
         
@@ -21,7 +41,7 @@
             <h1 id = "maintext">WORD SLICE</h1> <!-- or GAME OVER -->
             <h2 id = "user">GUEST</h2>
             <h2 id = "highscore">HIGH SCORE: 0</h2>
-            <button id = "play" onclick = "play(true)">PLAY</button>
+            <button id = "play" onclick = "playButton(true)">PLAY</button>
             <button id = "score-btn" onclick = "showScores()">LEADERBOARD</button>
             <button id = "shop-btn" onclick = "shop()">SHOP</button>
             <button id = "quests-btn" onclick = "questM()">QUESTS</button>
@@ -30,8 +50,24 @@
 
         <div class = "box" id = "pauseMenu">
             <h1 id = "maintext">PAUSED</h1>
-            <button id = "resume" onclick = "play(false)">RESUME</button>
-            <button id = "restart" onclick = "play(true)">RESTART</button>
+            <button id = "resume" onclick = "playButton(false)">RESUME</button>
+            <button id = "restart" onclick = "playButton(true)">RESTART</button>
+            <button id = "quit" onclick = "back()">QUIT TO MAIN</button>
+        </div>
+
+        <div class = "box" id = "gameEnd">
+            <h1 id = "maintext">GAME OVER</h1>
+            <div class = "stat">
+                <div class="stat">
+                    <label for="counter">Sliced</label>
+                    <p id="counter2"></p>
+                </div>
+                <div class="stat">
+                    <label for="money">Money</label>
+                    <p id="money2"></p>
+                </div>
+            </div>
+            <button id = "resume" onclick = "playButton(true)">PLAY AGAIN</button>
             <button id = "quit" onclick = "back()">QUIT TO MAIN</button>
         </div>
 
@@ -46,18 +82,50 @@
             <div class = "listcontainer">
                 <div class = "listitem">
                     <div class = "menu-txt">
-                        <h3>EXAMPLE</h3>
-                        <p>default</p>
+                        <h3>DEFAULT BLADE</h3>
+                        <p>Just a dot...</p>
                     </div>
                     <button class = "bladebtn" id = "bladebtn0" onclick = "blade(0)" disabled style="pointer-events: none;">CURRENT</button>
                 </div>
                 <div class = "listitem">
                     <div class = "menu-txt">
-                        <h3>BLADE 1</h3>
-                        <p>powerup - $50</p>
+                        <h3>RAINBOW DOT BLADE</h3>
+                        <p>Just a dot... but rainbow!</p>
                     </div>
-                    <button class = "shopbtn" id = "shopbtn1" onclick = "buy(1, 20)">BUY</button>
+                    <button class = "shopbtn" id = "shopbtn1" onclick = "buy(1)">BUY $20</button>
                     <button class = "bladebtn" id = "bladebtn1" onclick = "blade(1)">USE</button>
+                </div>
+                <div class = "listitem">
+                    <div class = "menu-txt">
+                        <h3>EMOJI BLADE</h3>
+                        <p>:D</p>
+                    </div>
+                    <button class = "shopbtn" id = "shopbtn2" onclick = "buy(2)">BUY $40</button>
+                    <button class = "bladebtn" id = "bladebtn2" onclick = "blade(2)">USE</button>
+                </div>
+                <div class = "listitem">
+                    <div class = "menu-txt">
+                        <h3>RAINBOW EMOJI BLADE</h3>
+                        <p>Rainbow :D</p>
+                    </div>
+                    <button class = "shopbtn" id = "shopbtn3" onclick = "buy(3)">BUY $60</button>
+                    <button class = "bladebtn" id = "bladebtn3" onclick = "blade(3)">USE</button>
+                </div>
+                <div class = "listitem">
+                    <div class = "menu-txt">
+                        <h3>EMOTICON BLADE</h3>
+                        <p>\_(^o^)_/</p>
+                    </div>
+                    <button class = "shopbtn" id = "shopbtn4" onclick = "buy(4)">BUY $80</button>
+                    <button class = "bladebtn" id = "bladebtn4" onclick = "blade(4)">USE</button>
+                </div>
+                <div class = "listitem">
+                    <div class = "menu-txt">
+                        <h3>RAINBOW EMOTICON BLADE</h3>
+                        <p>Rainbow \_(^o^)_/</p>
+                    </div>
+                    <button class = "shopbtn" id = "shopbtn5" onclick = "buy(5)">BUY $100</button>
+                    <button class = "bladebtn" id = "bladebtn5" onclick = "blade(5)">USE</button>
                 </div>
             </div>
             <button class = "backbtn" id = "backshop" onclick = "back()">BACK</button>
@@ -117,27 +185,6 @@
     <div id='game'>        
         <div id="canvases">
             <canvas id="canvas-blade" class="bottom-layer"></canvas>
-        </div>
-
-        <div id="stats">
-            <div class="stat">
-                <label for="counter">Sliced</label>
-                <p id="counter"></p>
-            </div>
-
-            <div class="stat">
-                <label for="lives">Lives</label>
-                <p id="lives"></p>
-            </div>
-
-            <div class="stat">
-                <label for="money">Money</label>
-                <p id="money"></p>
-            </div>
-
-            <button id="reset">Reset</button>
-            <button id="pause">Pause</button>
-
         </div>
     </div>        
     <script src="js/main.js" async="true"></script>

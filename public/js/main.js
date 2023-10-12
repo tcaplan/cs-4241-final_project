@@ -18,7 +18,7 @@ score = 0
 
 paused = false
 
-MARGIN = 100
+MARGIN = 0
 WIDTH = 0
 HEIGHT = 0
 SLICED_COLOR = 'grey'
@@ -61,6 +61,10 @@ bladeMouseMoveText = (text, font, color='random') => {
         bladeCTX.fillText(text, startX, startY)
         startX=mouseX;
         startY=mouseY;
+
+        bladeCTX.fillStyle = "rgba(145, 199, 177, 0.2)";
+        bladeCTX.fillRect(0, 0, bladeCanvas.width, bladeCanvas.height);
+    
     })
 }
 
@@ -87,6 +91,8 @@ dotBlade = new Blade(bladeMouseMoveText('.', '30px Arial', 'black'))
 rainbowDotBlade = new Blade(bladeMouseMoveText('.', '30px Arial'))
 emoticonBlade = new Blade(bladeMouseMoveText('\\_(^o^)_/', '15px Arial', 'black'))
 rainbowEmoticonBlade = new Blade(bladeMouseMoveText('\\_(^o^)_/', '15px Arial'))
+
+let bladelist = [dotBlade, rainbowDotBlade, emojiBlade, rainbowEmojiBlade, emoticonBlade, rainbowEmoticonBlade]
 
 function Blade(move) {
     this.down = event => {
@@ -128,15 +134,18 @@ sliced = event => {
                     body.parts[0].render.sprite.texture = generateWordImage('money', SLICED_COLOR)
                     money += 20
                     document.getElementById('money').innerHTML = money
+                    document.getElementById('money2').innerHTML = money
                 } else if (body.label === 'bomb') {
                     body.parts[0].render.sprite.texture = generateWordImage('bomb', SLICED_COLOR)
                     lives = 0
                     currentBlade2.disable()
                     document.getElementById('lives').innerHTML = lives
+                    gameOver();
                 } else {
-                        score++
-                        body.parts[0].render.sprite.texture = words[body.label].sliced
-                        document.getElementById('counter').innerHTML = score                    
+                    score++
+                    body.parts[0].render.sprite.texture = words[body.label].sliced
+                    document.getElementById('counter').innerHTML = score 
+                    document.getElementById('counter2').innerHTML = score                   
                 }
                 body.parts[0].render.opacity = 0.5
             }
@@ -162,15 +171,22 @@ collisionDetected = event => {
             projectiles.filter(p => p.label !== projectile.label)
         }
     }
+    if (lives === 0) {
+        gameOver();
+    }
 }
 
-// let money = 0;
+let totalmoney = 0;
 let user = "GUEST";
 let highscore = 0;
 
 let blades = [
     [true, 0],
-    [false, 50]
+    [false, 20],
+    [false, 40],
+    [false, 60],
+    [false, 80],
+    [false, 100]
     ];
 
 let quests = [
@@ -187,35 +203,40 @@ const questMenu = document.getElementById("quests");
 const log = document.getElementById("log");
 const scores = document.getElementById("scores");
 const pauseMenu = document.getElementById("pauseMenu");
-const pauseBtn = document.getElementById("pause");
+const gameHeader = document.getElementById("gameHeader");
+const gameEnd = document.getElementById("gameEnd");
 
 //start or unpause game
-function play(start) {
+function playButton(start) {
     mainMenu.style.display = "none";
     pauseMenu.style.display = "none";
-    pauseBtn.style.display = "block";
+    gameEnd.style.display = "none";
+    gameHeader.style.display = "block";
 
     //if start = true, start from beginning, else unpause
     //canvas stuff here
+    if (start === true) {
+        gameReset(false)
+    }
+    play(projectiles);
 }
 
-function pause() {
+function pauseButton() {
     pauseMenu.style.display = "flex";
-    pauseBtn.style.display = "none";
-
+    gameHeader.style.display = "none";
+    paused = true;
+    pause(projectiles);
     //canvas stuff here
 }
 
 function gameOver() {
-    mainMenu.style.display = "flex";
-    pauseBtn.style.display = "none";
-
-    const playbtn = document.getElementById("play");
-    playbtn.setAttribute('onclick',"play(true)");
-    playbtn.innerHTML = 'PLAY AGAIN';
-
-    const mainText = document.getElementById("maintext");
-    mainText.innerHTML = 'GAME OVER';
+    mousePressed = false;
+    slicing = false;
+    isDown = false;
+    totalmoney += money;
+    gameReset(true);
+    gameEnd.style.display = "flex";
+    gameHeader.style.display = "none";
 }
 
 function shop() {
@@ -223,7 +244,7 @@ function shop() {
     shopMenu.style.display = "flex";
 
     const shopmoneytext = document.getElementById("shopm");
-    shopmoneytext.innerHTML = "MONEY: " + money;
+    shopmoneytext.innerHTML = "MONEY: " + totalmoney;
 }
 
 function questM() {
@@ -252,6 +273,7 @@ function showScores() {
 
 //back to main menu (or pause menu)
 function back() {
+    gameReset(true);
 
     mainMenu.style.display = "flex";
     shopMenu.style.display = "none";
@@ -259,11 +281,12 @@ function back() {
     log.style.display = "none";
     scores.style.display = "none";
     pauseMenu.style.display = "none";
+    gameEnd.style.display = "none";
 }
 
 //buy blade
 function buy(bladeNum) {
-    if (blades[bladeNum][1] > money) {
+    if (blades[bladeNum][1] > totalmoney) {
         error("Not enough money!");
     }
     else {
@@ -278,10 +301,10 @@ function buy(bladeNum) {
         useBtn.style.display = "block";
         useBtn.style.pointerEvents = "auto"; 
 
-        money -= blades[bladeNum][1];
+        totalmoney -= blades[bladeNum][1];
 
         const shopmoneytext = document.getElementById("shopm");
-        shopmoneytext.innerHTML = "Money: " + money;
+        shopmoneytext.innerHTML = "Money: " + totalmoney;
     }
 }
 
@@ -399,11 +422,12 @@ function getNumberOfWords(text) {
 
 function generateWordImage(word, color) {
     var imageCanvas = document.createElement('canvas')
+    imageCanvas.style.zIndex = -1;
     var ctx2 = imageCanvas.getContext('2d')
-    ctx2.font = "30px Arial"
+    ctx2.font = "30px Iceland"
     imageCanvas.width = ctx2.measureText(word).width;
     imageCanvas.height = 30
-    ctx2.font = "30px Arial"
+    ctx2.font = "30px Iceland"
     ctx2.fillStyle = color
     ctx2.fillText(word, 0, 25, 150)
 
@@ -542,7 +566,7 @@ function resizeCanvases() {
 }
 
 function getCurrentBlade() {
-    return rainbowEmojiBlade
+    return bladelist[currentBlade];
 }
 
 function gameInit() {
@@ -570,8 +594,8 @@ function gameInit() {
     // set canvas size
     resizeCanvases()
 
-    document.getElementById('reset').onclick = gameReset
-    document.getElementById('pause').onclick = () => {
+    //document.getElementById('reset').onclick = gameReset
+    /* document.getElementById('pause').onclick = () => {
         paused = !paused
         if(paused) { 
             play(projectiles)
@@ -580,7 +604,7 @@ function gameInit() {
             pause(projectiles)
             document.getElementById('pause').innerHTML = 'Play'
         }
-    }
+    } */
 
     // add mouse control
     mouse = Mouse.create(render.canvas)
@@ -622,19 +646,22 @@ function gameInit() {
     Render.run(render);
 
     // set game values
-    gameReset()
+    gameReset(true)
 
     // start the game
-    update() 
+    update()
 }
 
-function gameReset() {
+function gameReset(isPaused) {
+    document.getElementById('counter2').innerHTML = score
+    document.getElementById('money2').innerHTML = money
+
     // game settings
     lives = 3
     money = 0
     score = 0
-    paused = false
-    document.getElementById('pause').innerHTML = 'Pause'
+    paused = isPaused;
+    //document.getElementById('pause').innerHTML = 'Pause'
     document.getElementById('counter').innerHTML = score
     document.getElementById('lives').innerHTML = lives
     document.getElementById('money').innerHTML = money
@@ -646,6 +673,9 @@ function gameReset() {
     World.add(engine.world, floor)
 
     // enable current blade
+    if (currentBlade2 != null) {
+        currentBlade2.disable()
+    }
     currentBlade2 = getCurrentBlade()
     currentBlade2.enable()
 
