@@ -394,6 +394,7 @@ app.get('/checkLog', async (req, res) => {
 app.post('/logout', async (req, res) => {
     try {
         req.session.login = false;
+        req.session.username = null;
         console.log("User logged out");
         res.json({ success: true, message: 'User logged out' });
     } catch (error) {
