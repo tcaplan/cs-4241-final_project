@@ -14,7 +14,7 @@ TODO
 ## Technologies Used
 1. JavaScript - language for development
 2. MongoDB - persistent database
-3. Node.js - used for server development
+3. Node.js - used for server-side development
 4. express - library used for server-side development
 5. Matter.js - physics library for game mechanics
 
