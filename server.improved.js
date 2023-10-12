@@ -229,5 +229,115 @@ app.post('/highScore', async (req, res) => {
     }
 });
 
+app.post('/ownedBlades', async (req, res) => {
+    try {
+        const blade = req.body.blade;
+        const username = req.session.username;
+
+        // Create a new entry in the ownedBlades table with the specified username and blade
+        const newUser = {
+            username,
+            blade
+        };
+
+        await ownedBlades.insertOne(newUser);
+
+        console.log("User added with owned blades");
+        res.json({ success: true, message: 'User added with owned blades' });
+    } catch (error) {
+        console.error('Error during owned blades update:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.get('/ownedBlades', async (req, res) => {
+    try {
+        const username = req.session.username;
+
+        // Query the ownedBlades table to find all blades associated with the specified username
+        const ownedBladesData = await ownedBlades.find({ username }).toArray();
+
+        // Extract the list of blade numbers from the data
+        const ownedBladesList = ownedBladesData.map((entry) => entry.blade);
+
+        res.json({ success: true, blades: ownedBladesList });
+    } catch (error) {
+        console.error('Error retrieving owned blades:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+
+app.post('/currentBlades', async (req, res) => {
+    try {
+        const bladeNumber = req.body.bladeNumber;
+        const username = req.session.username;
+
+        // Check if the username already exists in the currentBlades table
+        const existingUser = await currentBlades.findOne({ username });
+
+        if (existingUser) {
+            // Username already exists, update the blade number
+            await currentBlades.updateOne({ username }, { $set: { bladeNumber } });
+
+            console.log("Blade number updated successfully");
+            res.json({ success: true, message: 'Blade number updated successfully' });
+        } else {
+            // Username is not found, create a new entry in the currentBlades table
+            const newUser = {
+                username,
+                bladeNumber
+            };
+
+            await currentBlades.insertOne(newUser);
+
+            console.log("User added with blade number");
+            res.json({ success: true, message: 'User added with blade number' });
+        }
+    } catch (error) {
+        console.error('Error during blade number update:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.get('/currentBlades', async (req, res) => {
+    try {
+        const username = req.session.username;
+
+        // Query the currentBlades table to find the bladeNumber associated with the specified username
+        const currentBladeData = await currentBlades.findOne({ username });
+
+        if (currentBladeData) {
+            // If the data is found, send the bladeNumber as a response
+            res.json({ bladeNumber: currentBladeData.bladeNumber });
+        } else {
+            // If the username is not found, return 0 as the default blade number
+            res.json({ bladeNumber: 0 });
+        }
+    } catch (error) {
+        console.error('Error retrieving current blade number:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.get('/top10', async (req, res) => {
+  console.log("in get top10")
+  try {
+    // Query the highScore table to find the top ten highest scores
+    const top10Scores = await highScores.find().sort({ score: -1 }).limit(10).toArray();
+
+    // Extract the usernames and scores from the results
+    const top10List = top10Scores.map(item => ({
+      username: item.username,
+      score: item.score
+    }));
+
+    res.json(top10List);
+  } catch (error) {
+    console.error('Error retrieving top 10 scores:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 // set up the server
 app.listen(3000 || `${process.env.PORT}`)
