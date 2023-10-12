@@ -118,7 +118,7 @@ h3 {
     font-size: 25px;
 }
 
-#shop, #log, #quests, .bladebtn, .gameHeader, #scores, #pauseMenu, #gameEnd{
+#shop, #log, #quests, .bladebtn, .gameHeader, #scores, #pauseMenu, #gameEnd, #shopbtn0{
     display: none;
 }
 
@@ -295,5 +295,14 @@ form label {
 }
 
 #main button, #pauseMenu button, #gameEnd button{
+    font-size: xx-large;
+}
+
+table {
+    margin: 20px;
+    width: 90%;
+}
+
+th, tr, td {
     font-size: xx-large;
 }

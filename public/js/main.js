@@ -273,6 +273,7 @@ function setQuest(questNum) {
     if(!quests[questNum][0]) {
         quests[questNum][0] = true;
         totalmoney += quests[questNum][1];
+        updateQuest(questNum);
     
         const curQuest = document.getElementById("qs" + questNum);
         curQuest.innerHTML = 'COMPLETE';
@@ -285,9 +286,56 @@ function loginScreen() {
     log.style.display = "flex";
 }
 
-function showScores() {
+async function showScores() {
     mainMenu.style.display = "none";
     scores.style.display = "flex";
+    let topten = [];
+    try {
+        const response = await fetch('/top10', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log("Got top 10 scores")
+
+            // Iterate through the top 10 scores and display them
+            data.forEach((score, index) => {
+                console.log(`${index + 1}. ${score.username}: ${score.score}`);
+                topten.push([score.username, score.score]);
+            });
+        } else {
+            console.error("Failed to retrieve top 10 scores.");
+        }
+    } catch (error) {
+        console.error('Error while fetching top 10 scores:', error);
+    }
+  
+    const table = document.querySelector("#data");
+    table.innerHTML = '';
+
+    for (let i = 0; i < topten.length; i++) {
+        const newThread = document.createElement("tr");
+        table.appendChild(newThread);
+
+        const placeText = document.createElement("td");
+        placeText.innerText = i + 1;
+        placeText.id = 'place' + i;
+        newThread.appendChild(placeText);
+
+        const userText = document.createElement("td");
+        userText.innerText = topten[i][0];
+        userText.id = 'user' + i;
+        newThread.appendChild(userText);
+
+        const scoreText = document.createElement("td");
+        scoreText.innerText = topten[i][1];
+        scoreText.id = 'score' + i;
+        newThread.appendChild(scoreText);
+    }
 }
 
 //back to main menu (or pause menu)
@@ -324,7 +372,9 @@ function buy(bladeNum) {
 
         const shopmoneytext = document.getElementById("shopm");
         shopmoneytext.innerHTML = "Money: " + totalmoney;
-        updateCurrency(totalmoney)
+        updateCurrency(totalmoney);
+      
+        updateBladePurchase(bladeNum);
     }
 }
 
@@ -341,20 +391,36 @@ function blade(bladeNum) {
     lastBlade.style.pointerEvents = "auto"; 
 
     currentBlade = bladeNum;
+  
+    updateCurrentBlade(bladeNum);
 }
 
 //set user specific text after login
 async function setAll() {
     const usertext = document.getElementById("user");
     usertext.innerHTML = user;
-
-    //change login button to logout
+    
+     //change login button to logout
     const logInOut = document.getElementById("log-btn");
     logInOut.innerHTML = "LOGOUT";
     logInOut.onclick = (event) => {
         event.preventDefault();
         logout();
     };
+    
+    // Reset blades and currentBlade to default before loading info
+    blades = [
+    [true, 0],
+    [false, 20],
+    [false, 40],
+    [false, 60],
+    [false, 80],
+    [false, 100]
+    ];
+  
+    currentBlade = 0;
+    
+    
     
     // Fetch the high score for the current user
     try {
@@ -366,11 +432,9 @@ async function setAll() {
         });
         const data = await response.json();
         const highScoreElement = document.getElementById("highscore");
-        console.log("in here5");
         
         if (data.score !== undefined) {
             // Update the high score element with the retrieved high score
-            console.log("Score: " + data.score);
             highscore = data.score;
             highScoreElement.innerHTML = `High Score: ${highscore}`;
         } 
@@ -387,12 +451,43 @@ async function setAll() {
             totalmoney = currencyData.currency;
             const shopmoneytext = document.getElementById("shopm");
             shopmoneytext.innerHTML = "MONEY: " + totalmoney;
-            // You can update the UI with the totalmoney value if needed
         }
+        
+        // Get current blade
+        const currentBladeResponse = await fetch('/currentBlades', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+        const currentBladeData = await currentBladeResponse.json();
 
+        if (currentBladeData.bladeNumber !== undefined) {
+            currentBlade = currentBladeData.bladeNumber;
+        }
+      
+        // Fetch the list of owned blades for the current user
+        const ownedBladesResponse = await fetch('/ownedBlades', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+        const ownedBladesData = await ownedBladesResponse.json();
+        const ownedBladesList = ownedBladesData.blades;
+        
+        ownedBladesList.forEach(index => {
+            if (index >= 0 && index < blades.length) {
+                blades[index][0] = true;
+            }
+        });
+      
+      
         for (let i = 0; i < blades.length; i++) {
         const curBlade = document.getElementById("shopbtn" + i);
         const useBtn = document.getElementById("bladebtn" + i);
+        
+        curBlade.style.display = "block";
         if (blades[i][0] == true) {
             curBlade.style.display = "none";
 
@@ -411,11 +506,29 @@ async function setAll() {
         else {
             useBtn.style.display = "none";
 
-            curBlade.innerHTML = 'BUY';
+            curBlade.innerHTML = 'BUY $' + blades[i][1];
             curBlade.disabled = false;
         }
     }
-
+      
+    //call get quests and update quests
+    
+    // Fetch the list of quests for the current user
+    const questsResponse = await fetch('/quests', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }});
+    const questsData = await questsResponse.json();
+    const questsList = questsData.quests;
+      
+    questsList.forEach(index => {
+          if (index >= 0 && index < quests.length) {
+              quests[index][0] = true;
+          }
+    });
+      
+    
     for (let i = 0; i < quests.length; i++) {
         const curQuest = document.getElementById("qs" + i);
         if (quests[i][0] == true) {
@@ -434,6 +547,71 @@ async function setAll() {
         // Handle the error as needed
     }
 }
+
+async function setAllGuest() {
+    const usertext = document.getElementById("user");
+    user = "GUEST"
+    usertext.innerHTML = user;
+    
+    // Reset blades and currentBlade to default before loading info
+    blades = [
+    [true, 0],
+    [false, 20],
+    [false, 40],
+    [false, 60],
+    [false, 80],
+    [false, 100]
+    ];
+  
+    
+  
+    const highScoreElement = document.getElementById("highscore");
+    highscore = 0;
+    highScoreElement.innerHTML = `High Score: ${highscore}`;
+    
+    const shopmoneytext = document.getElementById("shopm");
+    totalmoney = 0;
+    shopmoneytext.innerHTML = "MONEY: " + totalmoney;  
+    
+    currentBlade = 0;
+    
+  
+    for (let i = 0; i < blades.length; i++) {
+        const curBlade = document.getElementById("shopbtn" + i);
+        const useBtn = document.getElementById("bladebtn" + i);
+        
+        curBlade.style.display = "block";
+        if (blades[i][0] == true) {
+            curBlade.style.display = "none";
+
+            useBtn.style.display = "block";
+            
+            if (currentBlade == i) {
+                useBtn.innerHTML = 'CURRENT';
+                useBtn.disabled = true;
+                useBtn.style.pointerEvents = "none"; 
+            }
+            else {
+                useBtn.innerHTML = 'USE';
+                useBtn.disabled = false;
+            }
+        } 
+        else {
+            useBtn.style.display = "none";
+
+            curBlade.innerHTML = 'BUY $' + blades[i][1];
+            curBlade.disabled = false;
+        }
+    } 
+    
+    for (let i = 0; i < quests.length; i++) {
+        const curQuest = document.getElementById("qs" + i);
+          curQuest.innerHTML = 'INCOMPLETE';
+          curQuest.style.backgroundColor = '#54494B';
+        }
+}
+
+        
 
 // TODO: doesnt work
 function disableScroll() {
@@ -793,6 +971,18 @@ window.onload = async () => {
 
     addQuest('Login', 'log in to play.', 20)
     addQuest('Slice Bread', 'its the greatest thing.', 100)
+
+    const curUser = await fetch('/checkLog', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    });
+    const name = await curUser.json();
+    if (name !== null) {
+        user = name.username;
+        setAll();
+    }
     
     bladeCanvas = document.getElementById('canvas-blade')
     bladeCTX = bladeCanvas.getContext('2d')
@@ -870,6 +1060,7 @@ function switchLogRegister() {
         event.preventDefault();
         const username = document.querySelector('#username').value;
         const password = document.querySelector('#password').value;
+        form.reset();
         register(username, password);
       };
     }
@@ -880,6 +1071,7 @@ function switchLogRegister() {
         event.preventDefault();
         const username = document.querySelector('#username').value;
         const password = document.querySelector('#password').value;
+        form.reset();
         login(username, password);
       };
     }
@@ -970,15 +1162,37 @@ async function register(u, p) {
 }
 
 async function logout() {
-    //server stuff here
-
     //change login button to logout
     const logInOut = document.getElementById("log-btn");
+    logoutSession();
+    setAllGuest();
     logInOut.innerHTML = "LOGIN";
     logInOut.onclick = (event) => {
         event.preventDefault();
         loginScreen();
     };
+}
+
+async function logoutSession() {
+    try {
+        const response = await fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ user })
+        });
+
+        const logout = await response.json();
+        if (logout.success) {
+            console.log("User logged out successfully");
+        } else {
+            console.error("Failed to log out:", logout.message);
+        }
+    } catch (error) {
+        console.error('Error logging out:', error);
+    }
+    
 }
 
 function error(text) {
@@ -1034,6 +1248,72 @@ async function updateCurrency(currency) {
         }
     } catch (error) {
         console.error('Error updating currency:', error);
+    }
+}
+
+async function updateBladePurchase(blade) {
+    if (user === "GUEST") { return; }
+    try {
+        const response = await fetch('/ownedBlades', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ blade })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            console.log("Blade purchase updated successfully");
+        } else {
+            console.error("Failed to update blade purchase:", data.message);
+        }
+    } catch (error) {
+        console.error('Error updating blade purchase:', error);
+    }
+}
+
+async function updateCurrentBlade(bladeNumber) {
+    if (user === "GUEST") { return; }
+    try {
+        const response = await fetch('/currentBlades', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ bladeNumber })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            console.log("Current blade updated successfully");
+        } else {
+            console.error("Failed to update current blade:", data.message);
+        }
+    } catch (error) {
+        console.error('Error updating current blade:', error);
+    }
+}
+
+async function updateQuest(questNumber) {
+    if (user === "GUEST") { return; }
+    try {
+        const response = await fetch('/quests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ quest: questNumber })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            console.log("Quest updated successfully");
+        } else {
+            console.error("Failed to update quest:", data.message);
+        }
+    } catch (error) {
+        console.error('Error updating quest:', error);
     }
 }
 

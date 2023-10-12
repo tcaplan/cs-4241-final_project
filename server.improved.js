@@ -22,12 +22,18 @@ const client = new MongoClient( url )
 let logins = null
 let highScores = null
 let currencies = null
+let ownedBlades = null
+let currentBlades = null
+let quests = null
 
 async function run() {
   await client.connect()
   logins = await client.db("database").collection("logins")
   highScores = await client.db("database").collection("highScores")
   currencies = await client.db("database").collection("currencies")
+  ownedBlades = await client.db("database").collection("ownedBlades")
+  currentBlades = await client.db("database").collection("currentBlades")
+  quests = await client.db("database").collection("quests")
 }
 
 run()
@@ -135,9 +141,6 @@ app.get('/currency', async (req, res) => {
 app.post('/currency', async (req, res) => {
     try {
         const currency = req.body.currency;
-        console.log("Currency: ");
-        console.log(currency);
-        console.log(req.body);
         const username = req.session.username;
 
         // Check if the username already exists in the currency table
@@ -169,18 +172,13 @@ app.post('/currency', async (req, res) => {
 
 
 app.get('/highScore', async (req, res) => {
-  console.log("in here")
     try {
         const username = req.session.username;
-        console.log("Username: ");
-        console.log(req.session.username);
 
         // Query the highScore table to find the high score associated with the specified username
         const highScoreData = await highScores.findOne({ username });
-        console.log(highScoreData);
 
         if (highScoreData) {
-            console.log("In here 2");
             // If high score data is found, send it as a JSON response
             res.json({ score: highScoreData.score });
         } else {
@@ -225,6 +223,181 @@ app.post('/highScore', async (req, res) => {
         }
     } catch (error) {
         console.error('Error during high score update:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.post('/ownedBlades', async (req, res) => {
+    try {
+        const blade = req.body.blade;
+        const username = req.session.username;
+
+        // Create a new entry in the ownedBlades table with the specified username and blade
+        const newUser = {
+            username,
+            blade
+        };
+
+        await ownedBlades.insertOne(newUser);
+
+        console.log("User added with owned blades");
+        res.json({ success: true, message: 'User added with owned blades' });
+    } catch (error) {
+        console.error('Error during owned blades update:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.get('/ownedBlades', async (req, res) => {
+    try {
+        const username = req.session.username;
+
+        // Query the ownedBlades table to find all blades associated with the specified username
+        const ownedBladesData = await ownedBlades.find({ username }).toArray();
+
+        // Extract the list of blade numbers from the data
+        const ownedBladesList = ownedBladesData.map((entry) => entry.blade);
+
+        res.json({ success: true, blades: ownedBladesList });
+    } catch (error) {
+        console.error('Error retrieving owned blades:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+
+app.post('/currentBlades', async (req, res) => {
+    try {
+        const bladeNumber = req.body.bladeNumber;
+        const username = req.session.username;
+
+        // Check if the username already exists in the currentBlades table
+        const existingUser = await currentBlades.findOne({ username });
+
+        if (existingUser) {
+            // Username already exists, update the blade number
+            await currentBlades.updateOne({ username }, { $set: { bladeNumber } });
+
+            console.log("Blade number updated successfully");
+            res.json({ success: true, message: 'Blade number updated successfully' });
+        } else {
+            // Username is not found, create a new entry in the currentBlades table
+            const newUser = {
+                username,
+                bladeNumber
+            };
+
+            await currentBlades.insertOne(newUser);
+
+            console.log("User added with blade number");
+            res.json({ success: true, message: 'User added with blade number' });
+        }
+    } catch (error) {
+        console.error('Error during blade number update:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.get('/currentBlades', async (req, res) => {
+    try {
+        const username = req.session.username;
+
+        // Query the currentBlades table to find the bladeNumber associated with the specified username
+        const currentBladeData = await currentBlades.findOne({ username });
+
+        if (currentBladeData) {
+            // If the data is found, send the bladeNumber as a response
+            res.json({ bladeNumber: currentBladeData.bladeNumber });
+        } else {
+            // If the username is not found, return 0 as the default blade number
+            res.json({ bladeNumber: 0 });
+        }
+    } catch (error) {
+        console.error('Error retrieving current blade number:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.get('/top10', async (req, res) => {
+  try {
+    // Query the highScore table to find the top ten highest scores
+    const top10Scores = await highScores.find().sort({ score: -1 }).limit(10).toArray();
+
+    // Extract the usernames and scores from the results
+    const top10List = top10Scores.map(item => ({
+      username: item.username,
+      score: item.score
+    }));
+
+    res.json(top10List);
+  } catch (error) {
+    console.error('Error retrieving top 10 scores:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+
+app.post('/quests', async (req, res) => {
+    try {
+        const quest = req.body.quest;
+        const username = req.session.username;
+
+        // Create a new entry in the quests table with the specified username and quest
+        const newUser = {
+            username,
+            quest
+        };
+
+        await quests.insertOne(newUser);
+
+        console.log("User added with quests");
+        res.json({ success: true, message: 'User added with quests' });
+    } catch (error) {
+        console.error('Error during quest update:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.get('/quests', async (req, res) => {
+    try {
+        const username = req.session.username;
+
+        // Query the quests table to find all quests associated with the specified username
+        const questsData = await quests.find({ username }).toArray();
+
+        // Extract the list of quest numbers from the data
+        const questsList = questsData.map((entry) => entry.quest);
+
+        res.json({ success: true, quests: questsList });
+    } catch (error) {
+        console.error('Error retrieving quests:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+
+app.get('/checkLog', async (req, res) => {
+    try {
+        if (req.session.login === true) {
+            // If user is logged in, send username as a JSON response
+            res.json({ username: req.session.username });
+        } else {
+            // If user isn't logged in, return null
+            res.json(null);
+        }
+    } catch (error) {
+        console.error('Error checking login', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.post('/logout', async (req, res) => {
+    try {
+        req.session.login = false;
+        console.log("User logged out");
+        res.json({ success: true, message: 'User logged out' });
+    } catch (error) {
+        console.error('Error during logout:', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
