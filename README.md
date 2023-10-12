@@ -7,7 +7,6 @@ Word Slice is a game based on the hit sensation game Fruit Ninja. It is aimed fo
 In the game, words are tossed in the air randomly and the user must "slice" the words with their cursor, or lose the game. Each play of the game gives the user 3 lives. For each missed word, the user loses one life. If the user slices a "bomb" (the word bomb), they automatically lose all lives. If the user slices "money" (the word money), they gain $20. Money can be used in the shop to buy cool blades. A quest feature gives users goals to achieve while playing the game, such as "Slice Bread". Money is earned for completing quests, which can be used in the shop.
 
 ## Additional Instructions
-TODO - Any additional instructions that might be needed to fully use your project (login information etc.)
 
 Pre-existing Account Login Info:
 TODO
@@ -20,7 +19,7 @@ TODO
 5. Matter.js - physics library for game mechanics
 
 ## Challenges
-TODO - What challenges you faced in completing the project.
+Matter.js as a physics library is helpful, however for graphics library has much room for improvement. Figuring out layering the Matter.js canvas with the rest of our interface took a lot of trial, error, and time. Many bugs such as one object causing multiple collisions or invisible projectiles were difficult to find and solve as well. Matter.js also has poor documentation that involves minimal examples, so figuring out proper implementation what challenging. Error handling on the server-side, especially when referencing the database was very time-consuming, and getting cookies functional so that users will stay logged in was also difficult. Overall, the hardest part of development was integration between our separate branches: game functionality, UI, and server-side.
 
 ## Responsibilities
 
