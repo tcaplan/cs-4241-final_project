@@ -31,6 +31,7 @@ var mouseConstraint
 
 words = {}
 projectiles = []
+aliveProjectiles = {}
 
 // global variables
 mousePressed = false
@@ -163,12 +164,15 @@ collisionDetected = event => {
         if(pair.bodyA.label === 'the floor' || pair.bodyB.label === 'the floor') {
             projectile = pair.bodyA.label === 'the floor' ? pair.bodyB : pair.bodyA
             // check if a bomb collided with the floor
-            if(projectile.label !== 'bomb' && Body.getVelocity(projectile).y > 0 && lives > 0) {
-                lives--
-                document.getElementById('lives').innerHTML = lives
+            if(projectiles.filter(p => p.label === projectile.label).length > 0) {
+                if(projectile.label !== 'bomb' /* && Body.getVelocity(projectile).y > 0 */ && lives > 0) {
+                    lives--
+                    document.getElementById('lives').innerHTML = lives
+                }
+
+                projectiles = projectiles.filter(p => p.label !== projectile.label)
+                World.remove(engine.world, projectile)
             }
-            projectiles.filter(p => p.label !== projectile.label)
-            World.remove(engine.world, projectile)
         }
     }
     if (lives === 0) {
@@ -218,7 +222,7 @@ function playButton(start) {
     if (start === true) {
         gameReset(false)
     }
-    play(projectiles);
+    play();
 }
 
 function pauseButton() {
@@ -384,7 +388,16 @@ function disableScroll() {
  * Makes all Matter-JS Bodies passed in static
  */
 function pause(list) {
+    i = 0
     list.forEach(element => {
+        if(element.isStatic === false) {
+            v = Body.getVelocity(element)
+            aliveProjectiles[i++] = {
+                object: element,
+                v_x: v.x,
+                v_y: v.y
+            }
+        }
         element.isStatic = true
     });
 }
@@ -392,10 +405,13 @@ function pause(list) {
 /**
  * Makes all Matter-JS Bodies passed in dynamic
  */
-function play(list) {
-    list.forEach(element => {
-        element.isStatic = false
+function play() {
+    Object.keys(aliveProjectiles).forEach(key => {
+        p = aliveProjectiles[key].object
+        Body.setVelocity(p, {x: aliveProjectiles[key].v_x, y: aliveProjectiles[key].v_y})
+        p.isStatic = false
     });
+    aliveProjectiles = {}
     update()
 }
 
@@ -668,6 +684,7 @@ function gameReset(isPaused) {
     document.getElementById('money').innerHTML = money
 
     projectiles = [];
+    aliveProjectiles = {}
     World.remove(engine.world, Composite.allBodies(engine.world))
 
     // add the floor to the world
