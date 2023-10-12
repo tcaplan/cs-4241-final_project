@@ -224,11 +224,15 @@ function playButton(start) {
 function pauseButton() {
     pauseMenu.style.display = "flex";
     gameHeader.style.display = "none";
+    paused = true;
     pause(projectiles);
     //canvas stuff here
 }
 
 function gameOver() {
+    mousePressed = false;
+    slicing = false;
+    isDown = false;
     totalmoney += money;
     gameReset(true);
     gameEnd.style.display = "flex";
@@ -420,10 +424,10 @@ function generateWordImage(word, color) {
     var imageCanvas = document.createElement('canvas')
     imageCanvas.style.zIndex = -1;
     var ctx2 = imageCanvas.getContext('2d')
-    ctx2.font = "30px Arial"
+    ctx2.font = "30px Iceland"
     imageCanvas.width = ctx2.measureText(word).width;
     imageCanvas.height = 30
-    ctx2.font = "30px Arial"
+    ctx2.font = "30px Iceland"
     ctx2.fillStyle = color
     ctx2.fillText(word, 0, 25, 150)
 
