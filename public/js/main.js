@@ -57,14 +57,16 @@ bladeMouseMoveText = (text, font, color='random') => {
         mouseX=parseInt(event.clientX-offsetX);
         mouseY=parseInt(event.clientY-offsetY);
         
-        bladeCTX.fillStyle = color === 'random' ? randomColor() : color
+        bladeCTX.fillStyle = color === 'random' ? rainbowColor() : color
         bladeCTX.font = font
         bladeCTX.fillText(text, startX, startY)
         startX=mouseX;
         startY=mouseY;
 
+        //bladeCTX.globalCompositeOperation = "lighter";
         bladeCTX.fillStyle = "rgba(145, 199, 177, 0.2)";
         bladeCTX.fillRect(0, 0, bladeCanvas.width, bladeCanvas.height);
+        //bladeCTX.globalCompositeOperation = "color";
     
     })
 }
@@ -416,12 +418,32 @@ function play() {
 }
 
 function randomColor() {
-    switch (Math.floor(Math.random() * 5)) {
-        case 0: return 'blue'
-        case 1: return 'purple'
-        case 2: return 'orange'
-        case 3: return 'red'
-        case 4: return 'cyan'
+    switch (Math.floor(Math.random() * 4)) {
+        case 0: return '#F1F7ED'
+        case 1: return '#54494B'
+        case 2: return '#B33951'
+        case 3: return '#E3D081'
+        default: 
+            return 'black'        
+    }
+}
+
+rainbownext = 6;
+function rainbowColor() {
+    if (rainbownext === 6) {
+        rainbownext = 0;
+    }
+    else {
+        rainbownext++;
+    }
+    switch (rainbownext) {
+        case 0: return '#fc1703'
+        case 1: return '#fc9803'
+        case 2: return '#fce803'
+        case 3: return '#6bfc03'
+        case 4: return '#03ecfc'
+        case 5: return '#6203fc'
+        case 6: return '#ba03fc'
         default: 
             return 'black'        
     }
