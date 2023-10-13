@@ -9,7 +9,8 @@ In the game, words are tossed in the air randomly and the user must "slice" the 
 ## Additional Instructions
 
 Pre-existing Account Login Info:
-TODO
+Username: testBlades
+Password: test
 
 ## Technologies Used
 1. JavaScript - language for development
