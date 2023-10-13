@@ -17,6 +17,7 @@ TODO
 3. Node.js - used for server-side development
 4. express - library used for server-side development
 5. Matter.js - physics library for game mechanics
+6. Canvas - library used for the generation of word sprite images and blade display.
 
 ## Challenges
 Matter.js as a physics library is helpful, however for graphics library has much room for improvement. Figuring out layering the Matter.js canvas with the rest of our interface took a lot of trial, error, and time. Many bugs such as one object causing multiple collisions or invisible projectiles were difficult to find and solve as well. Matter.js also has poor documentation that involves minimal examples, so figuring out proper implementation what challenging. Error handling on the server-side, especially when referencing the database was very time-consuming, and getting cookies functional so that users will stay logged in was also difficult. Overall, the hardest part of development was integration between our separate branches: game functionality, UI, and server-side.
