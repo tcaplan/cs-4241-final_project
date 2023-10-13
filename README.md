@@ -31,7 +31,7 @@ Worked on game functionality, implementing the Matter.js library to create the t
 TODO
 
 ### Brendan Mannion
-TODO
+Worked on database and login functionality. Used MongoDB database to store tables for various parts of game such as logins, highscores, bladesOwned, and currency. Wrote the backend functions using NodeJS and helped connect them to front end. Also set up cookie-sessions to make sure users can stay logged in upon refresh or rejoining page.
 
 ## Project Video
 TODO - video link
