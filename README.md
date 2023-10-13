@@ -1,5 +1,5 @@
 # Word Slice
-link: http://word-slice.glitch.me/
+link: https://word-slice.glitch.me/
 
 ## Description
 Word Slice is a game based on the hit sensation game Fruit Ninja. It is aimed for people with nostalgia for Fruit Ninja, as well as users who enjoy simple yet fun online games. The game uses a persistent database, so users are given the option to play as a guest, or log in and save their progress. There is also a high score board to display the high score as well as the top 10 scores and users.
