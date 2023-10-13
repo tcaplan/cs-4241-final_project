@@ -29,10 +29,10 @@ Matter.js as a physics library is helpful, however for graphics library has much
 Worked on game functionality, implementing the Matter.js library to create the trajectories of the words. Implemented collision events for "slicing" words, money, and bombs. Implemented base blade designs and functionality. Implemented the randomized projectile launching. Implemented quest functionality.
 
 ### Jade Logan
-TODO
+Worked on menu interfaces and styling. Handled integrating the canvas elements with menus so that menu functionality is not impeded by the canvas and menu buttons and displays can interact with the game. Implemented functions to update different pages using user data. Implemented shop functionality.
 
 ### Brendan Mannion
 Worked on database and login functionality. Used MongoDB database to store tables for various parts of game such as logins, highscores, bladesOwned, and currency. Wrote the backend functions using NodeJS and helped connect them to front end. Also set up cookie-sessions to make sure users can stay logged in upon refresh or rejoining page.
 
 ## Project Video
-TODO - video link
+https://drive.google.com/file/d/1FVamZEz5-_DgfwHt2ZKbecVwq_R7SutQ/view?usp=sharing
